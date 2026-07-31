@@ -14,7 +14,7 @@ export function TopBar({ title, subtitle }: { title: string; subtitle?: string |
   return (
     <header className="sticky top-0 z-30 -mx-4 mb-6 border-b border-border/60 bg-background/80 px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6">
       <div className="flex items-center justify-between gap-4">
-        <div className="flex min-w-0 items-center gap-3">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
           <Sheet>
             <SheetTrigger asChild className="hidden md:flex lg:hidden">
               <Button variant="ghost" size="icon" aria-label="Open menu">
@@ -54,7 +54,7 @@ export function TopBar({ title, subtitle }: { title: string; subtitle?: string |
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <StreakFlame days={streak} className="hidden sm:flex" />
           <Button variant="ghost" size="icon" aria-label="Search">
             <Search className="size-5" />
