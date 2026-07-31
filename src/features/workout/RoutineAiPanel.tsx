@@ -68,7 +68,7 @@ export function RoutineAiPanel({ routine, onDismiss }: Props) {
             exit={{ y: 40, opacity: 0 }}
             transition={{ type: "spring", stiffness: 280, damping: 22 }}
             onClick={() => setOpen(true)}
-            className="fixed bottom-[calc(4rem+env(safe-area-inset-bottom)+12px)] left-1/2 z-40 -translate-x-1/2 lg:hidden"
+            className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom)+12px)] left-1/2 z-40 -translate-x-1/2 lg:hidden"
           >
             <span className="flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 shadow-lg shadow-primary/40 text-sm font-semibold text-primary-foreground">
               <Sparkles className="size-4" />
