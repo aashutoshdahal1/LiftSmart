@@ -17,7 +17,7 @@ export interface DbExercise {
 }
 
 export const REPO_BASE =
-  "https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main";
+  "https://raw.githubusercontent.com/aashutoshdahal1/exercises-dataset/main";
 
 export function getImageUrl(ex: DbExercise): string {
   return `${REPO_BASE}/${ex.image}`;
