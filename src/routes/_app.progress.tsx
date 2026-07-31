@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useSearch } from "@tanstack/react-router";
+import { z } from "zod";
 import { Camera } from "lucide-react";
 import { CalorieChart } from "@/components/charts/CalorieChart";
 import { ConsistencyChart } from "@/components/charts/ConsistencyChart";
@@ -14,7 +15,10 @@ import { AchievementGrid } from "@/features/gamification/AchievementGrid";
 import { MeasurementsSection } from "@/features/measurements/MeasurementsSection";
 import { WorkoutHistory } from "@/features/workout/WorkoutHistory";
 
+const searchSchema = z.object({ tab: z.string().optional() });
+
 export const Route = createFileRoute("/_app/progress")({
+  validateSearch: searchSchema,
   head: () => ({
     meta: [
       { title: "Progress — LiftSmart" },
@@ -31,9 +35,10 @@ export const Route = createFileRoute("/_app/progress")({
 });
 
 function ProgressPage() {
+  const { tab } = useSearch({ from: "/_app/progress" });
   return (
     <AppShell title="Progress" subtitle="Week 6 · everything trending the right way">
-      <Tabs defaultValue="charts" className="space-y-6">
+      <Tabs value={tab ?? "charts"} className="space-y-6">
         <TabsList className="w-full max-w-md rounded-2xl bg-elevated">
           {["charts", "body", "photos", "awards"].map((t) => (
             <TabsTrigger key={t} value={t} className="flex-1 rounded-xl capitalize">

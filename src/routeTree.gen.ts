@@ -17,7 +17,6 @@ import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppFoodRouteImport } from './routes/_app.food'
 import { Route as AppProgressRouteImport } from './routes/_app.progress'
 import { Route as AppSettingsRouteImport } from './routes/_app.settings'
-import { Route as AppWeightRouteImport } from './routes/_app.weight'
 import { Route as AppWorkoutRouteImport } from './routes/_app.workout'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-password'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
@@ -62,11 +61,6 @@ const AppSettingsRoute = AppSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AppRoute,
 } as any)
-const AppWeightRoute = AppWeightRouteImport.update({
-  id: '/weight',
-  path: '/weight',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppWorkoutRoute = AppWorkoutRouteImport.update({
   id: '/workout',
   path: '/workout',
@@ -96,7 +90,6 @@ export interface FileRoutesByFullPath {
   '/food': typeof AppFoodRoute
   '/progress': typeof AppProgressRoute
   '/settings': typeof AppSettingsRoute
-  '/weight': typeof AppWeightRoute
   '/workout': typeof AppWorkoutRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
@@ -110,7 +103,6 @@ export interface FileRoutesByTo {
   '/food': typeof AppFoodRoute
   '/progress': typeof AppProgressRoute
   '/settings': typeof AppSettingsRoute
-  '/weight': typeof AppWeightRoute
   '/workout': typeof AppWorkoutRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
@@ -126,7 +118,6 @@ export interface FileRoutesById {
   '/_app/food': typeof AppFoodRoute
   '/_app/progress': typeof AppProgressRoute
   '/_app/settings': typeof AppSettingsRoute
-  '/_app/weight': typeof AppWeightRoute
   '/_app/workout': typeof AppWorkoutRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
@@ -142,7 +133,6 @@ export interface FileRouteTypes {
     | '/food'
     | '/progress'
     | '/settings'
-    | '/weight'
     | '/workout'
     | '/auth/forgot-password'
     | '/auth/login'
@@ -156,7 +146,6 @@ export interface FileRouteTypes {
     | '/food'
     | '/progress'
     | '/settings'
-    | '/weight'
     | '/workout'
     | '/auth/forgot-password'
     | '/auth/login'
@@ -171,7 +160,6 @@ export interface FileRouteTypes {
     | '/_app/food'
     | '/_app/progress'
     | '/_app/settings'
-    | '/_app/weight'
     | '/_app/workout'
     | '/auth/forgot-password'
     | '/auth/login'
@@ -245,13 +233,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/weight': {
-      id: '/_app/weight'
-      path: '/weight'
-      fullPath: '/weight'
-      preLoaderRoute: typeof AppWeightRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/workout': {
       id: '/_app/workout'
       path: '/workout'
@@ -289,7 +270,6 @@ interface AppRouteChildren {
   AppFoodRoute: typeof AppFoodRoute
   AppProgressRoute: typeof AppProgressRoute
   AppSettingsRoute: typeof AppSettingsRoute
-  AppWeightRoute: typeof AppWeightRoute
   AppWorkoutRoute: typeof AppWorkoutRoute
 }
 
@@ -299,7 +279,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppFoodRoute: AppFoodRoute,
   AppProgressRoute: AppProgressRoute,
   AppSettingsRoute: AppSettingsRoute,
-  AppWeightRoute: AppWeightRoute,
   AppWorkoutRoute: AppWorkoutRoute,
 }
 

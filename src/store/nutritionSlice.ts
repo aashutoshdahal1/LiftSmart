@@ -1,11 +1,19 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { consumed, meals, waterGlasses, type FoodItem, type Meal } from "@/lib/mock-data";
 
+export interface CalorieAdjustment {
+  delta: number;         // + means increase, - means decrease
+  reason: string;        // human-readable explanation
+  date: string;          // YYYY-MM-DD this adjustment was computed
+}
+
 interface NutritionState {
   meals: Meal[];
   consumed: typeof consumed;
   water: number;
   waterTarget: number;
+  calorieAdjustment: CalorieAdjustment | null;
+  yesterdayMealsUsed: boolean;  // true if today's meals were carried from yesterday
 }
 
 const initialState: NutritionState = {
@@ -13,6 +21,8 @@ const initialState: NutritionState = {
   consumed,
   water: waterGlasses.current,
   waterTarget: waterGlasses.target,
+  calorieAdjustment: null,
+  yesterdayMealsUsed: false,
 };
 
 const nutritionSlice = createSlice({
@@ -45,8 +55,25 @@ const nutritionSlice = createSlice({
     removeWater(state) {
       state.water = Math.max(0, state.water - 1);
     },
+    setCalorieAdjustment(state, action: PayloadAction<CalorieAdjustment | null>) {
+      state.calorieAdjustment = action.payload;
+    },
+    carryYesterdayMeals(state, action: PayloadAction<Meal[]>) {
+      // Replace today's meals with yesterday's items (reset to yesterday's food)
+      state.meals = action.payload;
+      const totals = action.payload
+        .flatMap((m) => m.items)
+        .reduce((acc, item) => ({
+          calories: acc.calories + item.calories,
+          protein:  acc.protein  + item.protein,
+          carbs:    acc.carbs    + item.carbs,
+          fat:      acc.fat      + item.fat,
+        }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
+      state.consumed = totals;
+      state.yesterdayMealsUsed = true;
+    },
   },
 });
 
-export const { addFood, removeFood, addWater, removeWater } = nutritionSlice.actions;
+export const { addFood, removeFood, addWater, removeWater, setCalorieAdjustment, carryYesterdayMeals } = nutritionSlice.actions;
 export default nutritionSlice.reducer;
