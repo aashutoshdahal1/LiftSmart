@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, Dumbbell, Play, Plus } from "lucide-react";
+import { ArrowLeft, ChevronRight, Dumbbell, Play, Plus, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { SectionHeader } from "@/components/common/SectionHeader";
@@ -35,8 +35,111 @@ export const Route = createFileRoute("/_app/workout")({
   component: WorkoutPage,
 });
 
+// ── Routine detail sheet ──────────────────────────────────────────────────────
+function RoutineDetailSheet({
+  routine,
+  onClose,
+  onStart,
+}: {
+  routine: Routine;
+  onClose: () => void;
+  onStart: () => void;
+}) {
+  const totalSets = routine.exercises.reduce((a, e) => a + e.sets, 0);
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <motion.div
+        initial={{ y: "100%" }}
+        animate={{ y: 0 }}
+        exit={{ y: "100%" }}
+        transition={{ type: "spring", stiffness: 320, damping: 30 }}
+        className="fixed bottom-0 left-0 right-0 z-50 max-h-[85vh] overflow-y-auto rounded-t-3xl bg-card pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+      >
+        <div className="mx-auto mt-3 h-1 w-10 rounded-full bg-muted" />
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4">
+          <div>
+            <h3 className="font-display text-xl font-semibold">{routine.title}</h3>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {routine.exercises.length} exercise{routine.exercises.length !== 1 ? "s" : ""} · {totalSets} total sets
+            </p>
+          </div>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
+            <X className="size-5" />
+          </button>
+        </div>
+
+        {/* Exercise list */}
+        <div className="space-y-2 px-6 pb-4">
+          {routine.exercises.map((ex, i) => (
+            <motion.div
+              key={ex.id}
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.04 }}
+              className="flex items-center gap-3 rounded-2xl bg-elevated p-3"
+            >
+              {/* Thumbnail */}
+              <div className="size-12 shrink-0 overflow-hidden rounded-xl bg-muted">
+                {ex.imageUrl ? (
+                  <img src={ex.imageUrl} alt={ex.name} className="size-full object-cover" loading="lazy"
+                    onError={(e) => { (e.currentTarget.parentElement as HTMLElement).style.display = "none"; }} />
+                ) : (
+                  <span className="grid size-full place-items-center">
+                    <Dumbbell className="size-4 text-muted-foreground" />
+                  </span>
+                )}
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold capitalize">{ex.name}</p>
+                <p className="text-[11px] text-muted-foreground capitalize">
+                  {[ex.bodyPart, ex.equipment].filter(Boolean).join(" · ") || "Exercise"}
+                </p>
+              </div>
+
+              <span className="shrink-0 rounded-xl bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+                {ex.sets} × {ex.reps}
+              </span>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Start button */}
+        <div className="px-6 pt-2">
+          <Button
+            size="lg"
+            className="h-14 w-full gap-2 rounded-3xl text-base"
+            onClick={() => { onClose(); onStart(); }}
+          >
+            <Play className="size-4 fill-current" />
+            Start Workout
+          </Button>
+        </div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
 // ── Routine list card ─────────────────────────────────────────────────────────
-function RoutineCard({ routine, onStart }: { routine: Routine; onStart: () => void }) {
+function RoutineCard({
+  routine,
+  onStart,
+  onView,
+}: {
+  routine: Routine;
+  onStart: () => void;
+  onView: () => void;
+}) {
   const totalSets = routine.exercises.reduce((a, e) => a + e.sets, 0);
   return (
     <motion.div
@@ -45,7 +148,8 @@ function RoutineCard({ routine, onStart }: { routine: Routine; onStart: () => vo
       className="surface-card rounded-3xl p-5"
     >
       <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
+        {/* Tapping the left side opens the detail view */}
+        <button className="flex items-center gap-3 min-w-0 flex-1 text-left" onClick={onView}>
           <span className="grid size-10 shrink-0 place-items-center rounded-2xl gradient-primary text-primary-foreground">
             <Dumbbell className="size-4" />
           </span>
@@ -55,16 +159,19 @@ function RoutineCard({ routine, onStart }: { routine: Routine; onStart: () => vo
               {routine.exercises.length} exercise{routine.exercises.length !== 1 ? "s" : ""} · {totalSets} sets
             </p>
           </div>
-        </div>
+          <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+        </button>
+
         <Button size="sm" className="shrink-0 gap-1.5 rounded-2xl" onClick={onStart}>
           <Play className="size-3.5 fill-current" />
           Start
         </Button>
       </div>
+
       {routine.exercises.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5">
           {routine.exercises.slice(0, 4).map((ex) => (
-            <span key={ex.id} className="rounded-full bg-elevated px-2.5 py-1 text-[11px] text-muted-foreground">
+            <span key={ex.id} className="rounded-full bg-elevated px-2.5 py-1 text-[11px] text-muted-foreground capitalize">
               {ex.name}
             </span>
           ))}
@@ -90,6 +197,7 @@ function WorkoutPage() {
   const [done, setDone] = useState(false);
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
+  const [viewRoutine, setViewRoutine] = useState<Routine | null>(null);
 
   // AI Review: keyed to exercise count so it re-shows when exercises are added
   const [aiRoutine, setAiRoutine] = useState<Routine | null>(null);
@@ -286,7 +394,7 @@ function WorkoutPage() {
           ) : (
             <div className="space-y-3">
               {routines.map((r) => (
-                <RoutineCard key={r.id} routine={r} onStart={() => handleStart(r)} />
+                <RoutineCard key={r.id} routine={r} onStart={() => handleStart(r)} onView={() => setViewRoutine(r)} />
               ))}
             </div>
           )}
@@ -298,6 +406,15 @@ function WorkoutPage() {
         onClose={() => setCreateOpen(false)}
         onSave={handleSaveRoutine}
       />
+
+      {/* Routine detail sheet */}
+      {viewRoutine && (
+        <RoutineDetailSheet
+          routine={viewRoutine}
+          onClose={() => setViewRoutine(null)}
+          onStart={() => { setViewRoutine(null); handleStart(viewRoutine); }}
+        />
+      )}
 
       {/* AI pill — dismisses on X, re-shows when a new routine is saved */}
       <AnimatePresence>
