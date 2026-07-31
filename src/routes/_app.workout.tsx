@@ -118,7 +118,7 @@ function RoutineDetailSheet({
         <div className="px-6 pt-2">
           <Button
             size="lg"
-            className="h-14 w-full gap-2 rounded-3xl text-base"
+            className="h-12 w-full gap-2 rounded-3xl text-sm"
             onClick={() => { onClose(); onStart(); }}
           >
             <Play className="size-4 fill-current" />
