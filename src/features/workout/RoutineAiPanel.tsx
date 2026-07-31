@@ -77,7 +77,7 @@ export function RoutineAiPanel({ routine, onDismiss }: Props) {
             </span>
             <button
               onClick={(e) => { e.stopPropagation(); onDismiss(); }}
-              className="absolute -right-1.5 -top-1.5 grid size-5 place-items-center rounded-full bg-red-500 shadow-md transition-colors hover:bg-red-600"
+              className="absolute -right-1.5 -top-4 grid size-5 place-items-center rounded-full bg-red-500 shadow-md transition-colors hover:bg-red-600"
               aria-label="Dismiss AI Review"
             >
               <X className="size-3 text-white" />
