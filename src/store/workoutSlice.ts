@@ -57,6 +57,9 @@ const workoutSlice = createSlice({
     setNotes(state, action: PayloadAction<string>) {
       state.notes = action.payload;
     },
+    addExercises(state, action: PayloadAction<Exercise[]>) {
+      state.exercises = [...state.exercises, ...action.payload];
+    },
     completeWorkout(state) {
       state.completed = true;
     },
@@ -69,6 +72,6 @@ const workoutSlice = createSlice({
   },
 });
 
-export const { startRoutine, toggleSet, updateSet, setNotes, completeWorkout, resetWorkout } =
+export const { startRoutine, addExercises, toggleSet, updateSet, setNotes, completeWorkout, resetWorkout } =
   workoutSlice.actions;
 export default workoutSlice.reducer;

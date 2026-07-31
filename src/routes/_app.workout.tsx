@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, Dumbbell, Play, Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { SectionHeader } from "@/components/common/SectionHeader";
 import { AppShell } from "@/components/layout/AppShell";
@@ -9,13 +9,15 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { CreateRoutineSheet, type Routine } from "@/features/workout/CreateRoutineSheet";
 import { ExerciseCard } from "@/features/workout/ExerciseCard";
+import { ExercisePicker } from "@/features/workout/ExercisePicker";
 import { RestTimer } from "@/features/workout/RestTimer";
 import { RoutineAiPanel } from "@/features/workout/RoutineAiPanel";
 import { WorkoutCompleteDialog } from "@/features/workout/WorkoutCompleteDialog";
+import { WorkoutTimer } from "@/features/workout/WorkoutTimer";
 import { routineToExercises } from "@/lib/routineToExercises";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { awardXp } from "@/store/gamificationSlice";
-import { completeWorkout, resetWorkout, setNotes, startRoutine } from "@/store/workoutSlice";
+import { addExercises, completeWorkout, resetWorkout, setNotes, startRoutine } from "@/store/workoutSlice";
 
 export const Route = createFileRoute("/_app/workout")({
   head: () => ({
@@ -33,10 +35,9 @@ export const Route = createFileRoute("/_app/workout")({
   component: WorkoutPage,
 });
 
-// ── Routine list card ──────────────────────────────────────────────────────────
+// ── Routine list card ─────────────────────────────────────────────────────────
 function RoutineCard({ routine, onStart }: { routine: Routine; onStart: () => void }) {
   const totalSets = routine.exercises.reduce((a, e) => a + e.sets, 0);
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 14 }}
@@ -55,23 +56,15 @@ function RoutineCard({ routine, onStart }: { routine: Routine; onStart: () => vo
             </p>
           </div>
         </div>
-        <Button
-          size="sm"
-          className="shrink-0 gap-1.5 rounded-2xl"
-          onClick={onStart}
-        >
+        <Button size="sm" className="shrink-0 gap-1.5 rounded-2xl" onClick={onStart}>
           <Play className="size-3.5 fill-current" />
           Start
         </Button>
       </div>
-
       {routine.exercises.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5">
           {routine.exercises.slice(0, 4).map((ex) => (
-            <span
-              key={ex.id}
-              className="rounded-full bg-elevated px-2.5 py-1 text-[11px] text-muted-foreground"
-            >
+            <span key={ex.id} className="rounded-full bg-elevated px-2.5 py-1 text-[11px] text-muted-foreground">
               {ex.name}
             </span>
           ))}
@@ -97,10 +90,18 @@ function WorkoutPage() {
   const [done, setDone] = useState(false);
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
-  const [latestRoutine, setLatestRoutine] = useState<Routine | null>(null);
+
+  // AI Review: keyed to exercise count so it re-shows when exercises are added
+  const [aiRoutine, setAiRoutine] = useState<Routine | null>(null);
+  const prevExCountRef = useRef(0);
+
+  // Workout timer: timestamp when session started
+  const [startedAt, setStartedAt] = useState<number | null>(null);
+
+  // Add exercise picker during active workout
+  const [addPickerOpen, setAddPickerOpen] = useState(false);
 
   const isActive = activeRoutineTitle !== null;
-
   const totalSets = exercises.reduce((a, e) => a + e.sets.length, 0);
   const doneSets = exercises.reduce((a, e) => a + e.sets.filter((s) => s.done).length, 0);
   const volume = exercises.reduce(
@@ -110,7 +111,8 @@ function WorkoutPage() {
 
   const handleSaveRoutine = (routine: Routine) => {
     setRoutines((prev) => [routine, ...prev]);
-    setLatestRoutine(routine);
+    setAiRoutine(routine);
+    prevExCountRef.current = routine.exercises.length;
     toast.success(`"${routine.title}" saved!`, {
       description: `${routine.exercises.length} exercises · tap ✨ for AI feedback`,
     });
@@ -119,6 +121,7 @@ function WorkoutPage() {
   const handleStart = (routine: Routine) => {
     const mapped = routineToExercises(routine.exercises);
     dispatch(startRoutine({ title: routine.title, exercises: mapped }));
+    setStartedAt(Date.now());
     toast(`Starting "${routine.title}"`, { description: `${routine.exercises.length} exercises loaded` });
   };
 
@@ -130,10 +133,14 @@ function WorkoutPage() {
 
   const handleClose = () => {
     setDone(false);
+    setStartedAt(null);
     dispatch(resetWorkout());
   };
 
-  // ── Active workout view ────────────────────────────────────────────────────
+  // Re-show AI pill whenever exercises are added during routine creation
+  const handleAiDismiss = () => setAiRoutine(null);
+
+  // ── Active workout view ───────────────────────────────────────────────────
   if (isActive) {
     return (
       <AppShell
@@ -142,14 +149,18 @@ function WorkoutPage() {
       >
         <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
           <div className="space-y-4">
-            {/* Back to routines */}
-            <button
-              onClick={() => dispatch(resetWorkout())}
-              className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              <ArrowLeft className="size-4" />
-              Back to routines
-            </button>
+
+            {/* Header bar: back + timer */}
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => dispatch(resetWorkout())}
+                className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <ArrowLeft className="size-4" />
+                Back
+              </button>
+              {startedAt && <WorkoutTimer startedAt={startedAt} />}
+            </div>
 
             {exercises.map((ex, i) => (
               <ExerciseCard
@@ -162,6 +173,16 @@ function WorkoutPage() {
                 }}
               />
             ))}
+
+            {/* + Add Exercise — Hevy style */}
+            <Button
+              variant="outline"
+              className="h-12 w-full gap-2 rounded-2xl border-dashed"
+              onClick={() => setAddPickerOpen(true)}
+            >
+              <Plus className="size-4" />
+              Add Exercise
+            </Button>
 
             <div className="surface-card rounded-3xl p-5">
               <SectionHeader title="Workout notes" subtitle="Your coach reads these tonight" />
@@ -188,16 +209,43 @@ function WorkoutPage() {
           </aside>
         </div>
 
+        {/* Exercise picker for adding mid-workout */}
+        <ExercisePicker
+          open={addPickerOpen}
+          onClose={() => setAddPickerOpen(false)}
+          onSelect={(picked) => {
+            const mapped = routineToExercises(
+              picked.map((db) => ({
+                id: db.id + Date.now(),
+                name: db.name,
+                sets: 3,
+                reps: 10,
+                dbId: db.id,
+                imageUrl: `https://raw.githubusercontent.com/aashutoshdahal1/exercises-dataset/main/${db.image}`,
+                bodyPart: db.body_part,
+                equipment: db.equipment,
+                target: db.target,
+                muscle_group: db.muscle_group,
+                secondary_muscles: db.secondary_muscles,
+                instructions: db.instructions,
+                instruction_steps: db.instruction_steps,
+              })),
+            );
+            dispatch(addExercises(mapped));
+            toast.success(`${picked.length} exercise${picked.length !== 1 ? "s" : ""} added`);
+          }}
+        />
+
         <WorkoutCompleteDialog
           open={done}
           onClose={handleClose}
-          stats={{ volume: volume || 9840, sets: doneSets, minutes: 62, xp: 180 }}
+          stats={{ volume: volume || 9840, sets: doneSets, minutes: startedAt ? Math.round((Date.now() - startedAt) / 60000) : 0, xp: 180 }}
         />
       </AppShell>
     );
   }
 
-  // ── Routines list view ─────────────────────────────────────────────────────
+  // ── Routines list view ────────────────────────────────────────────────────
   return (
     <AppShell title="Workout" subtitle="Your routines">
       <div className="space-y-4">
@@ -245,20 +293,19 @@ function WorkoutPage() {
         </AnimatePresence>
       </div>
 
-      {/* Create sheet */}
       <CreateRoutineSheet
         open={createOpen}
         onClose={() => setCreateOpen(false)}
         onSave={handleSaveRoutine}
       />
 
-      {/* AI pill — shown after a routine is created */}
+      {/* AI pill — dismisses on X, re-shows when a new routine is saved */}
       <AnimatePresence>
-        {latestRoutine && (
+        {aiRoutine && (
           <RoutineAiPanel
-            key={latestRoutine.id}
-            routine={latestRoutine}
-            onDismiss={() => setLatestRoutine(null)}
+            key={aiRoutine.id}
+            routine={aiRoutine}
+            onDismiss={handleAiDismiss}
           />
         )}
       </AnimatePresence>
