@@ -200,7 +200,7 @@ export function CreateRoutineSheet({ open, onClose, onSave }: Props) {
       <Sheet open={open && !pickerOpen} onOpenChange={(v) => !v && handleClose()}>
         <SheetContent
           side="bottom"
-          className="max-h-[92vh] overflow-y-auto rounded-t-3xl bg-card px-6 pb-8 pt-5"
+          className="max-h-[92vh] overflow-y-auto rounded-t-3xl bg-card px-6 pb-[max(7rem,calc(env(safe-area-inset-bottom)+7rem))] pt-5"
         >
           <div className="mx-auto mb-5 h-1 w-10 rounded-full bg-muted" />
 
