@@ -75,6 +75,13 @@ export function RoutineAiPanel({ routine, onDismiss }: Props) {
               AI Review
               <span className={`ml-1 font-bold ${color.replace("text-", "text-white")}`}>{score}/10</span>
             </span>
+            <button
+              onClick={(e) => { e.stopPropagation(); onDismiss(); }}
+              className="absolute -right-1.5 -top-1.5 grid size-5 place-items-center rounded-full bg-red-500 shadow-md transition-colors hover:bg-red-600"
+              aria-label="Dismiss AI Review"
+            >
+              <X className="size-3 text-white" />
+            </button>
             <motion.span
               className="absolute inset-0 rounded-full border border-primary"
               animate={{ scale: [1, 1.3], opacity: [0.6, 0] }}
