@@ -354,7 +354,7 @@ export function ExercisePicker({ open, onClose, onSelect, singleSelect = false }
       )}
 
       {/* List */}
-      <div className="relative flex-1 overflow-y-auto px-4 pb-6">
+      <div className="relative flex-1 overflow-y-auto px-4 pb-32">
         {loading && (
           <div className="space-y-3 pt-2">
             {Array.from({ length: 8 }).map((_, i) => <ExerciseSkeleton key={i} />)}
@@ -425,7 +425,7 @@ export function ExercisePicker({ open, onClose, onSelect, singleSelect = false }
             initial={{ y: 80, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 80, opacity: 0 }}
-            className="border-t border-border/50 bg-card px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+            className="border-t border-border/50 bg-card px-4 py-4 pb-[max(6rem,calc(env(safe-area-inset-bottom)+6rem))]"
           >
             <Button size="lg" className="h-14 w-full rounded-3xl gap-2 text-base" onClick={handleConfirm}>
               <Check className="size-5" />
