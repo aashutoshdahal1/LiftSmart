@@ -296,14 +296,6 @@ export function ExercisePicker({ open, onClose, onSelect, singleSelect = false }
           <X className="size-5" />
         </button>
         <h2 className="font-display text-lg font-semibold">Add Exercises</h2>
-        {selected.size > 0 && (
-          <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="ml-auto">
-            <Button size="sm" className="rounded-2xl gap-1.5" onClick={handleConfirm}>
-              <Check className="size-3.5" />
-              Add {selected.size}
-            </Button>
-          </motion.div>
-        )}
       </div>
 
       {/* Search */}
