@@ -16,7 +16,7 @@ export function TopBar({ title, subtitle }: { title: string; subtitle?: string |
       <div className="flex items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
           <Sheet>
-            <SheetTrigger asChild className="lg:hidden">
+            <SheetTrigger asChild className="hidden md:flex lg:hidden">
               <Button variant="ghost" size="icon" aria-label="Open menu">
                 <Menu className="size-5" />
               </Button>
