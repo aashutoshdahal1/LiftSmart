@@ -1,10 +1,10 @@
 import {
   Apple,
-  Bot,
   Dumbbell,
   LayoutDashboard,
   Scale,
   Settings,
+  Sparkles,
   TrendingUp,
 } from "lucide-react";
 
@@ -20,7 +20,7 @@ export const navItems: NavItem[] = [
   { to: "/food", label: "Food", icon: Apple },
   { to: "/weight", label: "Weight", icon: Scale },
   { to: "/progress", label: "Progress", icon: TrendingUp },
-  { to: "/coach", label: "AI Coach", icon: Bot },
+  { to: "/coach", label: "AI Coach", icon: Sparkles },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
