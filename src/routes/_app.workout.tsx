@@ -230,7 +230,6 @@ function WorkoutPage() {
     const mapped = routineToExercises(routine.exercises);
     dispatch(startRoutine({ title: routine.title, exercises: mapped }));
     setStartedAt(Date.now());
-    toast(`Starting "${routine.title}"`, { description: `${routine.exercises.length} exercises loaded` });
   };
 
   const handleFinish = () => {
