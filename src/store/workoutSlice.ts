@@ -1,15 +1,17 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { todayWorkout, type Exercise } from "@/lib/mock-data";
+import type { Exercise } from "@/lib/mock-data";
 
 interface WorkoutState {
   exercises: Exercise[];
+  activeRoutineTitle: string | null;
   activeRestSeconds: number | null;
   completed: boolean;
   notes: string;
 }
 
 const initialState: WorkoutState = {
-  exercises: todayWorkout.exercises,
+  exercises: [],
+  activeRoutineTitle: null,
   activeRestSeconds: null,
   completed: false,
   notes: "",
@@ -19,6 +21,12 @@ const workoutSlice = createSlice({
   name: "workout",
   initialState,
   reducers: {
+    startRoutine(state, action: PayloadAction<{ title: string; exercises: Exercise[] }>) {
+      state.exercises = action.payload.exercises;
+      state.activeRoutineTitle = action.payload.title;
+      state.completed = false;
+      state.notes = "";
+    },
     toggleSet(
       state,
       action: PayloadAction<{ exerciseId: string; setId: string; reps: number; weight: number }>,
@@ -52,12 +60,15 @@ const workoutSlice = createSlice({
     completeWorkout(state) {
       state.completed = true;
     },
-    resetWorkout() {
-      return { ...initialState, exercises: initialState.exercises.map((e) => ({ ...e })) };
+    resetWorkout(state) {
+      state.exercises = [];
+      state.activeRoutineTitle = null;
+      state.completed = false;
+      state.notes = "";
     },
   },
 });
 
-export const { toggleSet, updateSet, setNotes, completeWorkout, resetWorkout } =
+export const { startRoutine, toggleSet, updateSet, setNotes, completeWorkout, resetWorkout } =
   workoutSlice.actions;
 export default workoutSlice.reducer;
