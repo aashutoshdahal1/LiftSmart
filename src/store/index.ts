@@ -1,7 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 import gamificationReducer from "./gamificationSlice";
+import measurementReducer from "./measurementSlice";
 import nutritionReducer from "./nutritionSlice";
+import weightReducer from "./weightSlice";
 import workoutReducer from "./workoutSlice";
 
 export const store = configureStore({
@@ -9,6 +11,8 @@ export const store = configureStore({
     workout: workoutReducer,
     nutrition: nutritionReducer,
     gamification: gamificationReducer,
+    weight: weightReducer,
+    measurement: measurementReducer,
   },
 });
 

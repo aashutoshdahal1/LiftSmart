@@ -5,13 +5,14 @@ import { ConsistencyChart } from "@/components/charts/ConsistencyChart";
 import { ProteinChart } from "@/components/charts/ProteinChart";
 import { StrengthChart } from "@/components/charts/StrengthChart";
 import { VolumeChart } from "@/components/charts/VolumeChart";
-import { WeightTrendChart } from "@/components/charts/WeightTrendChart";
+import { WeightCalendarCard, WeightTrendChart } from "@/components/charts/WeightTrendChart";
 import { EmptyState } from "@/components/common/EmptyState";
 import { SectionHeader } from "@/components/common/SectionHeader";
 import { AppShell } from "@/components/layout/AppShell";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AchievementGrid } from "@/features/gamification/AchievementGrid";
-import { measurements } from "@/lib/mock-data";
+import { MeasurementsSection } from "@/features/measurements/MeasurementsSection";
+import { WorkoutHistory } from "@/features/workout/WorkoutHistory";
 
 export const Route = createFileRoute("/_app/progress")({
   head: () => ({
@@ -42,6 +43,8 @@ function ProgressPage() {
         </TabsList>
 
         <TabsContent value="charts" className="space-y-4">
+          <WeightCalendarCard />
+          <WorkoutHistory />
           <div className="grid gap-4 lg:grid-cols-2">
             <WeightTrendChart height={260} />
             <StrengthChart />
@@ -53,22 +56,7 @@ function ProgressPage() {
         </TabsContent>
 
         <TabsContent value="body">
-          <SectionHeader title="Measurements" subtitle="Since you started · 6 weeks ago" />
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {measurements.map((m) => (
-              <div key={m.label} className="surface-card rounded-3xl p-5">
-                <p className="text-sm text-muted-foreground">{m.label}</p>
-                <p className="mt-2 font-display text-2xl font-semibold">{m.value}</p>
-                <p
-                  className={`mt-1 text-xs font-medium ${
-                    m.delta.startsWith("-") ? "text-accent" : "text-primary"
-                  }`}
-                >
-                  {m.delta} cm
-                </p>
-              </div>
-            ))}
-          </div>
+          <MeasurementsSection />
         </TabsContent>
 
         <TabsContent value="photos">

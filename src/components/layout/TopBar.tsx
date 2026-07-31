@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Activity, Bell, Menu, Search } from "lucide-react";
+import { Activity, Dumbbell, Menu } from "lucide-react";
 import { navItems } from "./nav-items";
 import { StreakFlame } from "@/components/common/StreakFlame";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -8,7 +8,7 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 import { user } from "@/lib/mock-data";
 import { useAppSelector } from "@/store";
 
-export function TopBar({ title, subtitle }: { title: string; subtitle?: string | undefined }) {
+export function TopBar({ title: _title, subtitle: _subtitle }: { title: string; subtitle?: string | undefined }) {
   const streak = useAppSelector((s) => s.gamification.streak);
 
   return (
@@ -44,25 +44,16 @@ export function TopBar({ title, subtitle }: { title: string; subtitle?: string |
             </SheetContent>
           </Sheet>
 
-          <div className="min-w-0">
-            <h1 className="truncate font-display text-xl font-semibold tracking-tight sm:text-2xl">
-              {title}
-            </h1>
-            {subtitle ? (
-              <p className="truncate text-xs text-muted-foreground sm:text-sm">{subtitle}</p>
-            ) : null}
+          <div className="flex items-center gap-2.5">
+            <span className="grid size-9 shrink-0 place-items-center rounded-2xl gradient-primary text-primary-foreground shadow-sm">
+              <Dumbbell className="size-4.5" />
+            </span>
+            <span className="font-display text-sm font-bold tracking-widest uppercase">LiftSmart</span>
           </div>
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
           <StreakFlame days={streak} className="hidden sm:flex" />
-          <Button variant="ghost" size="icon" aria-label="Search">
-            <Search className="size-5" />
-          </Button>
-          <Button variant="ghost" size="icon" aria-label="Notifications" className="relative">
-            <Bell className="size-5" />
-            <span className="absolute right-2 top-2 size-2 rounded-full bg-primary" />
-          </Button>
           <Link to="/settings" aria-label="Profile">
             <Avatar className="size-9 border border-border">
               <AvatarFallback className="bg-elevated text-xs font-semibold">

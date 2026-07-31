@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Activity, Percent, Scale, Target } from "lucide-react";
 import { useState } from "react";
-import { WeightTrendChart } from "@/components/charts/WeightTrendChart";
+import { WeightCalendarCard, WeightTrendChart } from "@/components/charts/WeightTrendChart";
 import { MetricCard } from "@/components/common/MetricCard";
 import { AppShell } from "@/components/layout/AppShell";
 import { AiRecommendationCard } from "@/features/ai/AiRecommendationCard";
@@ -37,6 +37,8 @@ function WeightPage() {
           <MetricCard label="BMI" value={bmi} decimals={1} icon={Percent} tone="success" delta="Healthy range" deltaTone="flat" />
           <MetricCard label="Body fat est." value={14.2} decimals={1} unit="%" icon={Target} tone="warning" delta="-0.8% in 6 weeks" deltaTone="down" />
         </section>
+
+        <WeightCalendarCard />
 
         <section className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
           <WeightTrendChart height={300} />

@@ -10,7 +10,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { CreateRoutineSheet, type Routine } from "@/features/workout/CreateRoutineSheet";
 import { ExerciseCard } from "@/features/workout/ExerciseCard";
 import { ExercisePicker } from "@/features/workout/ExercisePicker";
-import { RestTimer } from "@/features/workout/RestTimer";
 import { RoutineAiPanel } from "@/features/workout/RoutineAiPanel";
 import { WorkoutCompleteDialog } from "@/features/workout/WorkoutCompleteDialog";
 import { WorkoutTimer } from "@/features/workout/WorkoutTimer";
@@ -193,7 +192,6 @@ function WorkoutPage() {
   const activeRoutineTitle = useAppSelector((s) => s.workout.activeRoutineTitle);
   const notes = useAppSelector((s) => s.workout.notes);
 
-  const [restKey, setRestKey] = useState(0);
   const [done, setDone] = useState(false);
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
@@ -275,7 +273,6 @@ function WorkoutPage() {
                 exercise={ex}
                 index={i}
                 onSetComplete={() => {
-                  setRestKey((k) => k + 1);
                   dispatch(awardXp(15));
                 }}
               />
@@ -311,9 +308,6 @@ function WorkoutPage() {
             </Button>
           </div>
 
-          <aside className="space-y-4 lg:order-first">
-            <RestTimer autoStartKey={restKey} />
-          </aside>
         </div>
 
         {/* Exercise picker for adding mid-workout */}
