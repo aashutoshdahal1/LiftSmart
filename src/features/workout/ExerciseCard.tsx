@@ -10,7 +10,7 @@ import { useAppDispatch } from "@/store";
 import { toggleSet, updateSet } from "@/store/workoutSlice";
 
 interface ExerciseCardProps {
-  exercise: Exercise;
+  exercise: Exercise & { imageUrl?: string };
   index: number;
   onSetComplete: () => void;
 }
@@ -32,9 +32,21 @@ export function ExerciseCard({ exercise, index, onSetComplete }: ExerciseCardPro
       )}
     >
       <header className="flex items-start justify-between gap-3 p-5 pb-4">
-        <div className="min-w-0">
+        {/* Exercise thumbnail from DB */}
+        {exercise.imageUrl && (
+          <div className="size-14 shrink-0 overflow-hidden rounded-xl bg-muted">
+            <img
+              src={exercise.imageUrl}
+              alt={exercise.name}
+              className="size-full object-cover"
+              loading="lazy"
+              onError={(e) => { (e.currentTarget.parentElement as HTMLElement).style.display = "none"; }}
+            />
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="truncate font-display text-base font-semibold">{exercise.name}</h3>
+            <h3 className="truncate font-display text-base font-semibold capitalize">{exercise.name}</h3>
             {allDone ? (
               <motion.span
                 initial={{ scale: 0 }}
@@ -45,7 +57,7 @@ export function ExerciseCard({ exercise, index, onSetComplete }: ExerciseCardPro
               </motion.span>
             ) : null}
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="mt-1 text-xs text-muted-foreground capitalize">
             {exercise.muscle} · {exercise.equipment} · {doneCount}/{exercise.sets.length} sets
           </p>
         </div>
