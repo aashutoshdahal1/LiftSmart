@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus, Trash2, X } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -87,11 +87,8 @@ export function CreateRoutineSheet({ open, onClose, onSave }: Props) {
       >
         <div className="mx-auto mb-5 h-1 w-10 rounded-full bg-muted" />
 
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6">
           <SheetTitle className="font-display text-xl font-semibold">New Routine</SheetTitle>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="size-4" />
-          </Button>
         </div>
 
         <div className="space-y-6">
