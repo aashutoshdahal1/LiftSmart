@@ -42,7 +42,7 @@ export function MobileNav() {
 
       <MagicChatSheet open={chatOpen} onClose={() => setChatOpen(false)} page={page} />
 
-      <div className="glass mx-3 mb-3 flex items-center justify-between rounded-3xl px-2 py-2 shadow-float">
+      <div className="glass mx-3 mb-[max(0.75rem,env(safe-area-inset-bottom))] flex items-center justify-between rounded-3xl px-2 py-2 shadow-float">
         {mobileNavItems.map(({ to, label, icon: Icon }) => (
           <Link
             key={to}
