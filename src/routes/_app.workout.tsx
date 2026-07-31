@@ -61,7 +61,7 @@ function RoutineDetailSheet({
         animate={{ y: 0 }}
         exit={{ y: "100%" }}
         transition={{ type: "spring", stiffness: 320, damping: 30 }}
-        className="fixed bottom-0 left-0 right-0 z-50 max-h-[85vh] overflow-y-auto rounded-t-3xl bg-card pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+        className="fixed bottom-0 left-0 right-0 z-50 max-h-[85vh] overflow-y-auto rounded-t-3xl bg-card pb-[max(6rem,calc(env(safe-area-inset-bottom)+6rem))]"
       >
         <div className="mx-auto mt-3 h-1 w-10 rounded-full bg-muted" />
 
