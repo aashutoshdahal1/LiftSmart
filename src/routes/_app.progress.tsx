@@ -1,4 +1,4 @@
-import { createFileRoute, useSearch } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { z } from "zod";
 import { Camera } from "lucide-react";
 import { CalorieChart } from "@/components/charts/CalorieChart";
@@ -36,9 +36,11 @@ export const Route = createFileRoute("/_app/progress")({
 
 function ProgressPage() {
   const { tab } = useSearch({ from: "/_app/progress" });
+  const navigate = useNavigate();
+  const activeTab = tab ?? "charts";
   return (
     <AppShell title="Progress" subtitle="Week 6 · everything trending the right way">
-      <Tabs value={tab ?? "charts"} className="space-y-6">
+      <Tabs value={activeTab} onValueChange={(t) => navigate({ to: "/progress", search: { tab: t } })} className="space-y-6">
         <TabsList className="w-full max-w-md rounded-2xl bg-elevated">
           {["charts", "body", "photos", "awards"].map((t) => (
             <TabsTrigger key={t} value={t} className="flex-1 rounded-xl capitalize">
