@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Target, Activity, X, Zap, TrendingDown, Scale, Minus, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SectionHeader } from "@/components/common/SectionHeader";
@@ -63,6 +64,7 @@ function Row({
 
 export function ProfileSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const profile = useAppSelector((s) => s.profile);
   const [age, setAge] = useState(String(profile.age));
   const [height, setHeight] = useState(String(profile.heightCm));
@@ -288,7 +290,7 @@ export function ProfileSheet({ open, onClose }: { open: boolean; onClose: () => 
                 {/* Logout */}
                 <section className="pb-[max(2rem,env(safe-area-inset-bottom))]">
                   <button
-                    onClick={() => { dispatch(logout()); onClose(); }}
+                    onClick={() => { dispatch(logout()); onClose(); navigate({ to: "/auth/login" }); }}
                     className="flex w-full items-center justify-center gap-3 rounded-2xl border border-destructive/30 bg-destructive/8 px-4 py-3 text-sm font-medium text-destructive transition-colors hover:bg-destructive/15"
                   >
                     <LogOut className="size-4" />
