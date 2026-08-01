@@ -244,8 +244,8 @@
 /* Safe area for PWA on iPhone.
    34px = exact home indicator height on all modern iPhones (X/11/12/13/14/15/16). */
 .mobile-nav-safe {
-  bottom: 34px;
-  bottom: env(safe-area-inset-bottom, 34px);
+  bottom: 16px;
+  bottom: env(safe-area-inset-bottom, 16px);
 }
 
 /* Status bar on iPhone PWA: 54px = tallest Dynamic Island notch (iPhone 16 Pro Max).
