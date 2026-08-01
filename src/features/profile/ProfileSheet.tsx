@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Target, Activity, X, Zap, TrendingDown, Scale, Minus } from "lucide-react";
+import { Check, Target, Activity, X, Zap, TrendingDown, Scale, Minus, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,7 @@ import {
 } from "@/store/profileSlice";
 import { user } from "@/lib/mock-data";
 import { profileApi } from "@/lib/api";
+import { logout } from "@/store/authSlice";
 
 const GOALS: { value: FitnessGoal; label: string; desc: string; icon: typeof Target }[] = [
   { value: "lean-bulk",    label: "Lean Bulk",   desc: "Gain muscle with minimal fat",     icon: Zap },
@@ -252,7 +253,7 @@ export function ProfileSheet({ open, onClose }: { open: boolean; onClose: () => 
                 </section>
 
                 {/* Activity level — horizontal slider */}
-                <section className="pb-[max(2rem,env(safe-area-inset-bottom))]">
+                <section>
                   <SectionHeader title="Activity level" />
                   <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
                     {ACTIVITY.map((a) => {
@@ -282,6 +283,17 @@ export function ProfileSheet({ open, onClose }: { open: boolean; onClose: () => 
                       <span key={i} className={`rounded-full transition-all duration-200 ${profile.activityLevel === a.value ? "w-4 h-1.5 bg-primary" : "size-1.5 bg-muted-foreground/25"}`} />
                     ))}
                   </div>
+                </section>
+
+                {/* Logout */}
+                <section className="pb-[max(2rem,env(safe-area-inset-bottom))]">
+                  <button
+                    onClick={() => { dispatch(logout()); onClose(); }}
+                    className="flex w-full items-center gap-3 rounded-2xl border border-destructive/30 bg-destructive/8 px-4 py-3 text-sm font-medium text-destructive transition-colors hover:bg-destructive/15"
+                  >
+                    <LogOut className="size-4" />
+                    Log out
+                  </button>
                 </section>
 
               </div>
