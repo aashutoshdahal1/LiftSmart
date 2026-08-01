@@ -241,13 +241,17 @@
   }
 }
 
-/* Safe area inset for PWA on iPhone */
+/* Safe area inset for PWA on iPhone.
+   Static fallback of 2rem (32px) + mb-3 (12px) on the pill = 44px,
+   which clears the 34px home indicator even if env() returns 0. */
 .mobile-nav-safe {
-  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  padding-bottom: 2rem;
+  padding-bottom: max(2rem, env(safe-area-inset-bottom));
 }
 
 .content-safe-bottom {
-  padding-bottom: max(6rem, calc(5rem + env(safe-area-inset-bottom)));
+  padding-bottom: 7rem;
+  padding-bottom: max(7rem, calc(5rem + env(safe-area-inset-bottom)));
 }
 
 @keyframes float {
