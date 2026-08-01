@@ -194,13 +194,11 @@
     background: oklch(0.75 0.17 158 / 0.3);
   }
 
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+  * {
+    scrollbar-width: none;
   }
-  ::-webkit-scrollbar-thumb {
-    background: var(--muted);
-    border-radius: 999px;
+  *::-webkit-scrollbar {
+    display: none;
   }
 }
 
@@ -244,8 +242,8 @@
 /* Safe area for PWA on iPhone.
    34px = exact home indicator height on all modern iPhones (X/11/12/13/14/15/16). */
 .mobile-nav-safe {
-  bottom: 16px;
-  bottom: env(safe-area-inset-bottom, 16px);
+  bottom: 6px;
+  bottom: env(safe-area-inset-bottom, 6px);
 }
 
 /* Status bar on iPhone PWA: 54px = tallest Dynamic Island notch (iPhone 16 Pro Max).
