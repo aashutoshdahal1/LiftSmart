@@ -63,8 +63,11 @@ const measurementSlice = createSlice({
       const rec = state.records.find((r) => r.id === action.payload.id);
       if (rec) rec.label = action.payload.label;
     },
+    setRecords(state, action: PayloadAction<typeof state.records>) {
+      state.records = action.payload;
+    },
   },
 });
 
-export const { logMeasurement, addRecord, removeRecord, renameRecord } = measurementSlice.actions;
+export const { logMeasurement, addRecord, removeRecord, renameRecord, setRecords } = measurementSlice.actions;
 export default measurementSlice.reducer;

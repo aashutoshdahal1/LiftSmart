@@ -164,9 +164,12 @@ const workoutSlice = createSlice({
       const idx = state.history.findIndex((w) => w.id === action.payload.id);
       if (idx !== -1) state.history[idx] = action.payload;
     },
+    setHistory(state, action: PayloadAction<CompletedWorkout[]>) {
+      state.history = action.payload;
+    },
   },
 });
 
-export const { startRoutine, addExercises, toggleSet, updateSet, setNotes, completeWorkout, resetWorkout, updateHistory } =
+export const { startRoutine, addExercises, toggleSet, updateSet, setNotes, completeWorkout, resetWorkout, updateHistory, setHistory } =
   workoutSlice.actions;
 export default workoutSlice.reducer;

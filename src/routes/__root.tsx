@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportError } from "../lib/error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { store } from "@/store";
+import { AppDataLoader } from "@/components/common/AppDataLoader";
 
 function NotFoundComponent() {
   return (
@@ -145,7 +146,7 @@ function RootComponent() {
   return (
     <ReduxProvider store={store}>
       <QueryClientProvider client={queryClient}>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <AppDataLoader />
         <Outlet />
         <Toaster position="top-center" />
       </QueryClientProvider>

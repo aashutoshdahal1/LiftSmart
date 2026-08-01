@@ -15,8 +15,9 @@ import { WorkoutCompleteDialog } from "@/features/workout/WorkoutCompleteDialog"
 import { WorkoutTimer } from "@/features/workout/WorkoutTimer";
 import { routineToExercises } from "@/lib/routineToExercises";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { awardXp } from "@/store/gamificationSlice";
+import { awardXp, setGamification } from "@/store/gamificationSlice";
 import { addExercises, completeWorkout, resetWorkout, setNotes, startRoutine } from "@/store/workoutSlice";
+import { workoutsApi } from "@/lib/api";
 
 export const Route = createFileRoute("/_app/workout")({
   head: () => ({
@@ -230,10 +231,31 @@ function WorkoutPage() {
     setStartedAt(Date.now());
   };
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
     dispatch(completeWorkout());
     dispatch(awardXp(180));
     setDone(true);
+    // Save to backend — fire and forget, don't block UI
+    try {
+      const durationMin = startedAt ? Math.round((Date.now() - startedAt) / 60000) : 0;
+      const volume = exercises.reduce((sum, ex) =>
+        sum + ex.sets.filter((s) => s.done).reduce((s2, s) => s2 + (s.weight ?? 0) * (s.reps ?? 0), 0), 0);
+      const totalSets = exercises.reduce((sum, ex) => sum + ex.sets.filter((s) => s.done).length, 0);
+      const result = await workoutsApi.save({
+        title: activeRoutineTitle ?? "Workout",
+        durationMin,
+        exercises: exercises as never[],
+        notes,
+        volume,
+        totalSets,
+      });
+      // Sync XP + streak back from server
+      if (result.user) {
+        dispatch(setGamification({ xp: result.user.xp, xpToNext: result.user.xpToNext, level: result.user.level, streak: result.user.streak }));
+      }
+    } catch {
+      // Backend unavailable — local Redux state still updated
+    }
   };
 
   const handleClose = () => {

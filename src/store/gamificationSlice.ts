@@ -38,8 +38,11 @@ const gamificationSlice = createSlice({
     incrementStreak(state) {
       state.streak += 1;
     },
+    setGamification(state, action: PayloadAction<Partial<GamificationState>>) {
+      Object.assign(state, action.payload);
+    },
   },
 });
 
-export const { awardXp, celebrate, clearCelebration, incrementStreak } = gamificationSlice.actions;
+export const { awardXp, celebrate, clearCelebration, incrementStreak, setGamification } = gamificationSlice.actions;
 export default gamificationSlice.reducer;

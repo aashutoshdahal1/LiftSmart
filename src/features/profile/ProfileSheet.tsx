@@ -15,6 +15,7 @@ import {
   type ProfileState,
 } from "@/store/profileSlice";
 import { user } from "@/lib/mock-data";
+import { profileApi } from "@/lib/api";
 
 const GOALS: { value: FitnessGoal; label: string; desc: string; icon: typeof Target }[] = [
   { value: "lean-bulk",    label: "Lean Bulk",   desc: "Gain muscle with minimal fat",     icon: Zap },
@@ -96,6 +97,7 @@ export function ProfileSheet({ open, onClose }: { open: boolean; onClose: () => 
     dispatch(setBodyStats(parsed));
     setSaved(true);
     setTimeout(() => setSaved(false), 1600);
+    profileApi.update({ ...parsed, goal: profile.goal, activityLevel: profile.activityLevel, gender: profile.gender }).catch(() => {});
   }
 
   return (
@@ -225,7 +227,7 @@ export function ProfileSheet({ open, onClose }: { open: boolean; onClose: () => 
                       return (
                         <button
                           key={g.value}
-                          onClick={() => dispatch(setGoal(g.value))}
+                          onClick={() => { dispatch(setGoal(g.value)); profileApi.update({ goal: g.value }).catch(() => {}); }}
                           className={`flex shrink-0 flex-col items-center gap-2 rounded-3xl border px-4 py-4 transition-all w-[120px] ${
                             active
                               ? "border-primary/60 bg-primary/10"
@@ -258,7 +260,7 @@ export function ProfileSheet({ open, onClose }: { open: boolean; onClose: () => 
                       return (
                         <button
                           key={a.value}
-                          onClick={() => dispatch(setActivityLevel(a.value))}
+                          onClick={() => { dispatch(setActivityLevel(a.value)); profileApi.update({ activityLevel: a.value }).catch(() => {}); }}
                           className={`flex shrink-0 flex-col items-center gap-2 rounded-3xl border px-4 py-4 transition-all w-[110px] ${
                             active
                               ? "border-primary/60 bg-primary/10"

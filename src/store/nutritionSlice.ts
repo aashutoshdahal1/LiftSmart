@@ -59,7 +59,6 @@ const nutritionSlice = createSlice({
       state.calorieAdjustment = action.payload;
     },
     carryYesterdayMeals(state, action: PayloadAction<Meal[]>) {
-      // Replace today's meals with yesterday's items (reset to yesterday's food)
       state.meals = action.payload;
       const totals = action.payload
         .flatMap((m) => m.items)
@@ -72,8 +71,14 @@ const nutritionSlice = createSlice({
       state.consumed = totals;
       state.yesterdayMealsUsed = true;
     },
+    setNutritionFromLog(state, action: PayloadAction<{ meals: Meal[]; water: number; waterTarget: number; consumed: typeof state.consumed }>) {
+      state.meals = action.payload.meals;
+      state.consumed = action.payload.consumed;
+      state.water = action.payload.water;
+      state.waterTarget = action.payload.waterTarget;
+    },
   },
 });
 
-export const { addFood, removeFood, addWater, removeWater, setCalorieAdjustment, carryYesterdayMeals } = nutritionSlice.actions;
+export const { addFood, removeFood, addWater, removeWater, setCalorieAdjustment, carryYesterdayMeals, setNutritionFromLog } = nutritionSlice.actions;
 export default nutritionSlice.reducer;

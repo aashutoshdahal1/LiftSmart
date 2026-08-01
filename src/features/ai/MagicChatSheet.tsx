@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAppSelector } from "@/store";
+import { aiApi } from "@/lib/api";
 
 type MagicPage = "workout" | "food" | "progress";
 
@@ -127,19 +128,29 @@ export function MagicChatSheet({
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  function send(text: string) {
+  async function send(text: string) {
     const trimmed = text.trim();
-    if (!trimmed) return;
-    setMessages((m) => [...m, { id: `u${Date.now()}`, role: "user", text: trimmed }]);
+    if (!trimmed || thinking) return;
+    const userMsg: Message = { id: `u${Date.now()}`, role: "user", text: trimmed };
+    setMessages((m) => [...m, userMsg]);
     setInput("");
     setThinking(true);
-    setTimeout(() => {
+    try {
+      const history = [...messages, userMsg].map((m) => ({
+        role: m.role as "user" | "assistant",
+        content: m.text,
+      }));
+      const { reply } = await aiApi.chat(history, page);
+      setMessages((m) => [...m, { id: `a${Date.now()}`, role: "assistant", text: reply }]);
+    } catch {
+      // fallback to local reply if backend unavailable
       setMessages((m) => [
         ...m,
         { id: `a${Date.now()}`, role: "assistant", text: buildReply(trimmed, context) },
       ]);
+    } finally {
       setThinking(false);
-    }, 1200);
+    }
   }
 
   return (

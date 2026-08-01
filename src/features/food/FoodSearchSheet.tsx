@@ -7,6 +7,7 @@ import { FOOD_DB } from "@/lib/food-database";
 import { favoriteMeals, type FoodItem, type Meal } from "@/lib/mock-data";
 import { useAppDispatch } from "@/store";
 import { addFood } from "@/store/nutritionSlice";
+import { nutritionApi } from "@/lib/api";
 
 const MEAL_SLOTS: { slot: Meal["slot"]; emoji: string; time: string }[] = [
   { slot: "Breakfast", emoji: "🌅", time: "7–10 AM" },
@@ -197,6 +198,8 @@ export function FoodSearchSheet({ open, slot: initialSlot, onClose }: Props) {
     if (!slot) return;
     dispatch(addFood({ slot, item }));
     onClose();
+    // Persist to backend — fire and forget
+    nutritionApi.addFood(slot, item).catch(() => {});
   }
 
   function addCustom() {

@@ -7,6 +7,8 @@ import { AuthLayout, GoogleButton } from "@/features/auth/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { login } from "@/store/authSlice";
 
 const schema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -27,6 +29,8 @@ export const Route = createFileRoute("/auth/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const authError = useAppSelector((s) => s.auth.error);
   const {
     register,
     handleSubmit,
@@ -48,9 +52,14 @@ function LoginPage() {
     >
       <form
         className="space-y-4"
-        onSubmit={handleSubmit(() => {
-          toast.success("Welcome back, Alex");
-          navigate({ to: "/dashboard" });
+        onSubmit={handleSubmit(async (values) => {
+          const result = await dispatch(login({ email: values.email, password: values.password }));
+          if (login.fulfilled.match(result)) {
+            toast.success(`Welcome back, ${result.payload.user.name}`);
+            navigate({ to: "/dashboard" });
+          } else {
+            toast.error(result.error.message ?? "Login failed");
+          }
         })}
       >
         <div>
@@ -87,8 +96,9 @@ function LoginPage() {
             <p className="mt-1.5 text-xs text-destructive">{errors.password.message}</p>
           ) : null}
         </div>
+        {authError && <p className="text-xs text-destructive">{authError}</p>}
         <Button type="submit" size="lg" className="h-12 w-full rounded-2xl" disabled={isSubmitting}>
-          Log in
+          {isSubmitting ? "Logging in…" : "Log in"}
         </Button>
       </form>
 

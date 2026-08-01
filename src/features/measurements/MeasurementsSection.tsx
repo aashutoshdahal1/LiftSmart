@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { addRecord, logMeasurement, removeRecord } from "@/store/measurementSlice";
 import { logWeight } from "@/store/weightSlice";
+import { weightApi, measurementsApi } from "@/lib/api";
 
 function formatDateLabel(iso: string) {
   const d = new Date(iso + "T00:00:00");
@@ -301,7 +302,10 @@ function WeightCard() {
           <LogHistory
             entries={chartEntries}
             unit="kg"
-            onLog={(date, value) => dispatch(logWeight({ date, kg: value }))}
+            onLog={(date, value) => {
+              dispatch(logWeight({ date, kg: value }));
+              weightApi.log(date, value).catch(() => {});
+            }}
           />
         </div>
 
@@ -404,7 +408,10 @@ function MeasurementCard({ id, colorIdx }: { id: string; colorIdx: number }) {
           <LogHistory
             entries={record.entries}
             unit={record.unit}
-            onLog={(date, value) => dispatch(logMeasurement({ id, date, value }))}
+            onLog={(date, value) => {
+              dispatch(logMeasurement({ id, date, value }));
+              measurementsApi.log(id, date, value).catch(() => {});
+            }}
           />
         </div>
 

@@ -3,10 +3,15 @@ import { Droplets, Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { addWater, removeWater } from "@/store/nutritionSlice";
+import { nutritionApi } from "@/lib/api";
 
 export function WaterTracker() {
   const dispatch = useAppDispatch();
   const { water, waterTarget } = useAppSelector((s) => s.nutrition);
+
+  function syncWater(newCount: number) {
+    nutritionApi.setWater(newCount).catch(() => {});
+  }
 
   return (
     <div className="surface-card rounded-3xl p-5">
@@ -27,11 +32,11 @@ export function WaterTracker() {
             size="icon"
             variant="ghost"
             aria-label="Remove a glass"
-            onClick={() => dispatch(removeWater())}
+            onClick={() => { dispatch(removeWater()); syncWater(Math.max(0, water - 1)); }}
           >
             <Minus className="size-4" />
           </Button>
-          <Button size="icon" aria-label="Add a glass" onClick={() => dispatch(addWater())}>
+          <Button size="icon" aria-label="Add a glass" onClick={() => { dispatch(addWater()); syncWater(water + 1); }}>
             <Plus className="size-4" />
           </Button>
         </div>

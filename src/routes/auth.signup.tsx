@@ -7,6 +7,8 @@ import { AuthLayout, GoogleButton } from "@/features/auth/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { register as registerUser } from "@/store/authSlice";
 
 const schema = z
   .object({
@@ -37,10 +39,12 @@ export const Route = createFileRoute("/auth/signup")({
 
 function SignupPage() {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const authError = useAppSelector((s) => s.auth.error);
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<z.input<typeof schema>>({ resolver: zodResolver(schema) });
 
   return (
@@ -58,9 +62,14 @@ function SignupPage() {
     >
       <form
         className="space-y-4"
-        onSubmit={handleSubmit(() => {
-          toast.success("Account created — let's build your plan");
-          navigate({ to: "/onboarding" });
+        onSubmit={handleSubmit(async (values) => {
+          const result = await dispatch(registerUser({ name: values.name, email: values.email, password: values.password }));
+          if (registerUser.fulfilled.match(result)) {
+            toast.success("Account created — let's build your plan");
+            navigate({ to: "/onboarding" });
+          } else {
+            toast.error(result.error.message ?? "Registration failed");
+          }
         })}
       >
         {(
@@ -85,8 +94,9 @@ function SignupPage() {
             ) : null}
           </div>
         ))}
-        <Button type="submit" size="lg" className="h-12 w-full rounded-2xl">
-          Create account
+        {authError && <p className="text-xs text-destructive">{authError}</p>}
+        <Button type="submit" size="lg" className="h-12 w-full rounded-2xl" disabled={isSubmitting}>
+          {isSubmitting ? "Creating account…" : "Create account"}
         </Button>
       </form>
 
