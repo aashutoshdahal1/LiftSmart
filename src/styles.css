@@ -241,6 +241,15 @@
   }
 }
 
+/* Safe area inset for PWA on iPhone */
+.mobile-nav-safe {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+.content-safe-bottom {
+  padding-bottom: max(6rem, calc(5rem + env(safe-area-inset-bottom)));
+}
+
 @keyframes float {
   0%,
   100% {

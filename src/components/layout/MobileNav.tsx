@@ -21,10 +21,7 @@ export function MobileNav() {
   const page = getPage(pathname);
 
   return (
-    <nav
-      className="fixed inset-x-0 bottom-0 z-50 lg:hidden"
-      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
-    >
+    <nav className="fixed inset-x-0 bottom-0 z-50 lg:hidden mobile-nav-safe">
       {/* Floating magic button */}
       <AnimatePresence>
         {showMagic && (

@@ -16,10 +16,7 @@ export function AppShell({ title, subtitle, children }: AppShellProps) {
       <div className="pointer-events-none fixed inset-0 gradient-hero opacity-70" aria-hidden />
       <Sidebar />
       <div className="relative lg:pl-[268px]">
-        <div
-          className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:pb-12"
-          style={{ paddingBottom: "calc(6rem + env(safe-area-inset-bottom, 0px))" }}
-        >
+        <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:pb-12 content-safe-bottom">
           <TopBar title={title} subtitle={subtitle} />
           <PageTransition>{children}</PageTransition>
         </div>
