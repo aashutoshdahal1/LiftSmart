@@ -241,12 +241,13 @@
   }
 }
 
-/* Safe area inset for PWA on iPhone.
-   Static fallback of 2rem (32px) + mb-3 (12px) on the pill = 44px,
-   which clears the 34px home indicator even if env() returns 0. */
+/* Safe area for PWA on iPhone.
+   34px = exact home indicator height on all modern iPhones (X/11/12/13/14/15/16).
+   Using env() with a hardcoded fallback that actually works regardless of
+   whether viewport-fit=cover was active at PWA install time. */
 .mobile-nav-safe {
-  padding-bottom: 2rem;
-  padding-bottom: max(2rem, env(safe-area-inset-bottom));
+  bottom: 34px;
+  bottom: env(safe-area-inset-bottom, 34px);
 }
 
 .content-safe-bottom {
