@@ -3,7 +3,8 @@ import { ArrowUp, Bot, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { chatMessages, coachPrompts } from "@/lib/mock-data";
+import { useAppSelector } from "@/store";
+import { aiApi } from "@/lib/api";
 
 interface Message {
   id: string;
@@ -11,30 +12,90 @@ interface Message {
   text: string;
 }
 
-const CANNED_REPLY =
-  "Got it. Based on your last 7 days — 4 sessions, 2,890 kcal average and a 0.2 kg weekly gain — I'd hold calories steady and push upper-body loads by 2.5%. I've updated tomorrow's session accordingly.";
+const PROMPTS = [
+  "Review my last week",
+  "Adjust my calories",
+  "Why is my bench stalling?",
+  "Build a deload week",
+  "Best post-workout meal?",
+];
 
 export function ChatWindow() {
-  const [messages, setMessages] = useState<Message[]>(chatMessages);
+  const token = useAppSelector((s) => s.auth.token);
+  const authUser = useAppSelector((s) => s.auth.user);
+  const streak = useAppSelector((s) => s.gamification.streak);
+  const weightEntries = useAppSelector((s) => s.weight.entries);
+  const workoutHistory = useAppSelector((s) => s.workout.history);
+  const profile = useAppSelector((s) => s.profile);
+
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
+
+  // Build greeting using real data on mount
+  useEffect(() => {
+    if (!token) return;
+
+    const firstName = authUser?.name?.split(" ")[0] ?? "there";
+    const latestWeight = weightEntries[weightEntries.length - 1];
+    const prevWeight = weightEntries[weightEntries.length - 8];
+    const weekDelta = latestWeight && prevWeight ? (latestWeight.kg - prevWeight.kg).toFixed(1) : null;
+    const lastWorkout = workoutHistory[0];
+
+    // Build a rich greeting prompt so Groq replies with real context
+    const greetingPrompt = `Generate a short (2-3 sentence) personalised morning greeting for ${firstName}.
+Facts:
+- Streak: ${streak} day${streak !== 1 ? "s" : ""}
+- Weight trend: ${weekDelta !== null ? `${Number(weekDelta) >= 0 ? "+" : ""}${weekDelta} kg this week` : "no weight data yet"}
+- Goal: ${profile.goal}
+- Last workout: ${lastWorkout ? `${lastWorkout.title} on ${lastWorkout.date}` : "none logged yet"}
+Keep it motivating and specific. End with a question about what they want help with today.`;
+
+    setThinking(true);
+    aiApi.chat([{ role: "user", content: greetingPrompt }], "coach")
+      .then(({ reply }) => {
+        setMessages([{ id: "init", role: "assistant", text: reply }]);
+      })
+      .catch(() => {
+        const fallback = streak > 0
+          ? `Hey ${firstName}! You're on a ${streak}-day streak — solid consistency. What do you want to work on today?`
+          : `Hey ${firstName}! Ready to train? Ask me anything about your workouts, nutrition, or progress.`;
+        setMessages([{ id: "init", role: "assistant", text: fallback }]);
+      })
+      .finally(() => setThinking(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages, thinking]);
 
-  const send = (text: string) => {
+  async function send(text: string) {
     const trimmed = text.trim();
-    if (!trimmed) return;
-    setMessages((m) => [...m, { id: `u${Date.now()}`, role: "user", text: trimmed }]);
+    if (!trimmed || thinking) return;
+
+    const userMsg: Message = { id: `u${Date.now()}`, role: "user", text: trimmed };
+    setMessages((m) => [...m, userMsg]);
     setInput("");
     setThinking(true);
-    window.setTimeout(() => {
-      setMessages((m) => [...m, { id: `a${Date.now()}`, role: "assistant", text: CANNED_REPLY }]);
+
+    try {
+      const history = [...messages, userMsg].map((m) => ({
+        role: m.role as "user" | "assistant",
+        content: m.text,
+      }));
+      const { reply } = await aiApi.chat(history, "coach");
+      setMessages((m) => [...m, { id: `a${Date.now()}`, role: "assistant", text: reply }]);
+    } catch {
+      setMessages((m) => [
+        ...m,
+        { id: `a${Date.now()}`, role: "assistant", text: "Sorry, I couldn't reach the AI service. Check your connection and try again." },
+      ]);
+    } finally {
       setThinking(false);
-    }, 1400);
-  };
+    }
+  }
 
   return (
     <div className="surface-card flex h-[calc(100dvh-13rem)] flex-col overflow-hidden rounded-3xl lg:h-[calc(100dvh-11rem)]">
@@ -47,11 +108,11 @@ export function ChatWindow() {
             transition={{ duration: 0.35 }}
             className={`flex gap-3 ${m.role === "user" ? "justify-end" : "justify-start"}`}
           >
-            {m.role === "assistant" ? (
+            {m.role === "assistant" && (
               <span className="grid size-8 shrink-0 place-items-center rounded-2xl gradient-primary text-primary-foreground">
                 <Bot className="size-4" />
               </span>
-            ) : null}
+            )}
             <div
               className={`max-w-[78%] rounded-3xl px-4 py-3 text-sm leading-relaxed ${
                 m.role === "user"
@@ -64,7 +125,7 @@ export function ChatWindow() {
           </motion.div>
         ))}
 
-        {thinking ? (
+        {thinking && (
           <div className="flex items-center gap-3">
             <span className="grid size-8 place-items-center rounded-2xl gradient-primary text-primary-foreground">
               <Bot className="size-4" />
@@ -80,13 +141,13 @@ export function ChatWindow() {
               ))}
             </div>
           </div>
-        ) : null}
+        )}
         <div ref={endRef} />
       </div>
 
       <div className="border-t border-border bg-card/70 p-4">
         <div className="no-scrollbar mb-3 flex gap-2 overflow-x-auto">
-          {coachPrompts.map((p) => (
+          {PROMPTS.map((p) => (
             <button
               key={p}
               onClick={() => send(p)}
@@ -99,10 +160,7 @@ export function ChatWindow() {
         </div>
         <form
           className="flex items-center gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-            send(input);
-          }}
+          onSubmit={(e) => { e.preventDefault(); send(input); }}
         >
           <Input
             value={input}
@@ -111,7 +169,13 @@ export function ChatWindow() {
             aria-label="Message your AI coach"
             className="h-12 rounded-2xl bg-elevated"
           />
-          <Button type="submit" size="icon" className="size-12 shrink-0 rounded-2xl" aria-label="Send">
+          <Button
+            type="submit"
+            size="icon"
+            disabled={!input.trim() || thinking}
+            className="size-12 shrink-0 rounded-2xl"
+            aria-label="Send"
+          >
             <ArrowUp className="size-5" />
           </Button>
         </form>

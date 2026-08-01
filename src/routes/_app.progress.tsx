@@ -76,7 +76,7 @@ function ProgressPage() {
         </TabsContent>
 
         <TabsContent value="awards" className="space-y-4">
-          <SectionHeader title="Achievements" subtitle="4 of 6 unlocked" />
+          <SectionHeader title="Achievements" />
           <AchievementGrid />
         </TabsContent>
       </Tabs>

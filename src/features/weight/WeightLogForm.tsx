@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useAppSelector } from "@/store";
 
 const schema = z.object({
   weight: z.coerce.number().min(25, "Too low").max(400, "Too high"),
@@ -15,6 +16,9 @@ const schema = z.object({
 type FormValues = z.input<typeof schema>;
 
 export function WeightLogForm({ onLogged }: { onLogged: (weight: number) => void }) {
+  const entries = useAppSelector((s) => s.weight.entries);
+  const profileWeight = useAppSelector((s) => s.profile.weightKg);
+  const latestKg = entries[entries.length - 1]?.kg ?? profileWeight;
   const {
     register,
     handleSubmit,
@@ -22,7 +26,7 @@ export function WeightLogForm({ onLogged }: { onLogged: (weight: number) => void
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { weight: 78.4, note: "" },
+    defaultValues: { weight: latestKg, note: "" },
   });
 
   return (

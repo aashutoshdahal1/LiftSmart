@@ -15,7 +15,6 @@ import {
   type FitnessGoal,
   type ProfileState,
 } from "@/store/profileSlice";
-import { user } from "@/lib/mock-data";
 import { profileApi } from "@/lib/api";
 import { logout } from "@/store/authSlice";
 
@@ -66,6 +65,7 @@ export function ProfileSheet({ open, onClose }: { open: boolean; onClose: () => 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const profile = useAppSelector((s) => s.profile);
+  const authUser = useAppSelector((s) => s.auth.user);
   const [age, setAge] = useState(String(profile.age));
   const [height, setHeight] = useState(String(profile.heightCm));
   const [weight, setWeight] = useState(String(profile.weightKg));
@@ -136,12 +136,12 @@ export function ProfileSheet({ open, onClose }: { open: boolean; onClose: () => 
                   <div className="flex items-center gap-4">
                     <Avatar className="size-16 border border-border">
                       <AvatarFallback className="bg-elevated font-display text-lg font-semibold">
-                        {user.avatarInitials}
+                        {authUser?.name ? authUser.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "?"}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-display text-lg font-semibold">{user.name}</p>
-                      <p className="text-sm text-muted-foreground">{user.email}</p>
+                      <p className="font-display text-lg font-semibold">{authUser?.name ?? "—"}</p>
+                      <p className="text-sm text-muted-foreground">{authUser?.email ?? "—"}</p>
                     </div>
                   </div>
 

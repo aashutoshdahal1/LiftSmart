@@ -1,5 +1,6 @@
 import type { Exercise, SetEntry } from "./mock-data";
 import type { RoutineExercise } from "@/features/workout/CreateRoutineSheet";
+import type { CompletedWorkout } from "@/store/workoutSlice";
 
 // Coaching cues keyed by lowercase exercise name — performance-focused, not instructional
 const AI_TIPS: Record<string, string> = {
@@ -31,25 +32,81 @@ const AI_TIPS: Record<string, string> = {
 
 const DEFAULT_TIP = "Focus on progressive overload — add reps or weight each week to keep making gains.";
 
-export function routineToExercises(exercises: RoutineExercise[]): Exercise[] {
+interface LastSetData {
+  weight: number;
+  reps: number;
+  date: string;
+  summary: string; // e.g. "3 × 10 @ 75 kg"
+}
+
+/** Build a lookup map: lowercase exercise name → most recent set data */
+export function buildLastSessionMap(history: CompletedWorkout[]): Map<string, LastSetData> {
+  const map = new Map<string, LastSetData>();
+
+  // History is sorted newest first from API
+  for (const workout of history) {
+    for (const ex of workout.exercises ?? []) {
+      const key = ex.name.toLowerCase().trim();
+      if (map.has(key)) continue; // already have a more recent entry
+
+      const doneSets = ex.sets.filter((s) => s.done !== false && (s.weight ?? 0) > 0);
+      if (doneSets.length === 0) continue;
+
+      // Most common weight in the session (mode), fallback to first
+      const weightCounts = new Map<number, number>();
+      for (const s of doneSets) {
+        const w = s.weight ?? 0;
+        weightCounts.set(w, (weightCounts.get(w) ?? 0) + 1);
+      }
+      const topWeight = [...weightCounts.entries()].sort((a, b) => b[1] - a[1])[0]![0];
+
+      // Average reps at that weight
+      const setsAtTopWeight = doneSets.filter((s) => s.weight === topWeight);
+      const avgReps = Math.round(setsAtTopWeight.reduce((s, x) => s + (x.reps ?? 0), 0) / setsAtTopWeight.length);
+
+      const summary = `${doneSets.length} × ${avgReps} @ ${topWeight} kg`;
+      map.set(key, { weight: topWeight, reps: avgReps, date: workout.date, summary });
+    }
+  }
+
+  return map;
+}
+
+export function routineToExercises(
+  exercises: RoutineExercise[],
+  lastSessionMap?: Map<string, LastSetData>,
+): Exercise[] {
   return exercises.map((re) => {
     const key = re.name.toLowerCase().trim();
     const aiTip = AI_TIPS[key] ?? DEFAULT_TIP;
+    const last = lastSessionMap?.get(key);
+
+    // Use last session weight/reps as the default for every set; fall back to 0
+    const defaultWeight = last?.weight ?? 0;
+    const defaultReps = last?.reps ?? re.reps;
 
     const sets: SetEntry[] = Array.from({ length: re.sets }, (_, i) => ({
       id: `${re.id}-s${i}`,
-      targetReps: re.reps,
-      targetWeight: 0,
+      targetReps: defaultReps,
+      targetWeight: defaultWeight,
+      reps: defaultReps,
+      weight: defaultWeight,
       done: false,
     }));
+
+    const lastSessionLabel = last
+      ? `${last.summary} on ${new Date(last.date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}`
+      : "No history yet";
 
     return {
       id: re.id,
       name: re.name,
       muscle: re.target ?? re.muscle_group ?? re.bodyPart ?? "Muscle",
       equipment: re.equipment ?? "Equipment",
-      aiTip,
-      lastSession: "No history yet",
+      aiTip: last
+        ? `Last session: ${last.summary}. ${last.weight > 0 ? `Try ${last.weight + 2.5} kg today.` : aiTip}`
+        : aiTip,
+      lastSession: lastSessionLabel,
       sets,
       imageUrl: re.imageUrl,
     } as Exercise & { imageUrl?: string };

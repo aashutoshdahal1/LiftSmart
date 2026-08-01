@@ -264,7 +264,7 @@ export function AiCoachSuggestions() {
         </span>
         <div>
           <p className="text-sm font-bold">Today's AI recommendations</p>
-          <p className="text-[10px] text-muted-foreground">Generated at 05:30 AM from last night's review</p>
+          <p className="text-[10px] text-muted-foreground">Based on your logged data</p>
         </div>
       </motion.div>
 

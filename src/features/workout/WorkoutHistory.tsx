@@ -334,7 +334,7 @@ function WorkoutRow({ workout, index, onClick }: { workout: CompletedWorkout; in
     <motion.button
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
+      transition={{ delay: Math.min(index, 5) * 0.05 }}
       onClick={onClick}
       className="w-full rounded-2xl bg-elevated p-4 text-left transition-colors hover:bg-primary/8"
     >
@@ -375,10 +375,23 @@ function AllWorkoutsSheet({
   onClose: () => void;
   onSelect: (w: CompletedWorkout) => void;
 }) {
+  const [query, setQuery] = useState("");
+  const PAGE = 30;
+  const [page, setPage] = useState(1);
+
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = ""; };
   }, []);
+
+  const filtered = query.trim()
+    ? history.filter((w) => w.title.toLowerCase().includes(query.toLowerCase()))
+    : history;
+  const visible = filtered.slice(0, page * PAGE);
+  const hasMore = visible.length < filtered.length;
+
+  // Reset page on query change
+  useEffect(() => { setPage(1); }, [query]);
 
   return (
     <>
@@ -394,23 +407,40 @@ function AllWorkoutsSheet({
       >
         <div className="shrink-0">
           <div className="mx-auto mt-3 h-1 w-10 rounded-full bg-muted" />
-          <div className="flex items-center justify-between px-6 py-4">
+          <div className="flex items-center justify-between px-6 py-4 pb-3">
             <div>
               <h3 className="font-display text-xl font-semibold">All workouts</h3>
-              <p className="mt-0.5 text-xs text-muted-foreground">{history.length} sessions logged</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">{filtered.length} of {history.length} sessions</p>
             </div>
             <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
               <X className="size-5" />
             </button>
           </div>
+          <div className="px-6 pb-3">
+            <Input
+              autoFocus
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search workouts…"
+              className="h-10 rounded-2xl bg-elevated focus-visible:ring-0 focus-visible:ring-offset-0"
+            />
+          </div>
           <div className="h-px bg-border/50 mx-6" />
         </div>
         <div className="flex-1 overflow-y-auto px-6 py-4">
           <div className="space-y-2">
-            {history.map((w, i) => (
-              <WorkoutRow key={w.id} workout={w} index={i} onClick={() => { onClose(); onSelect(w); }} />
+            {visible.map((w, i) => (
+              <WorkoutRow key={w.id} workout={w} index={Math.min(i, 4)} onClick={() => { onClose(); onSelect(w); }} />
             ))}
           </div>
+          {hasMore && (
+            <button
+              onClick={() => setPage((p) => p + 1)}
+              className="mt-4 w-full rounded-2xl border border-border py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Load more ({filtered.length - visible.length} remaining)
+            </button>
+          )}
         </div>
       </motion.div>
     </>

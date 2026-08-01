@@ -35,15 +35,29 @@ export const Route = createFileRoute("/_app/dashboard")({
   component: Dashboard,
 });
 
+const GOAL_WEEK_LABELS: Record<string, string> = {
+  "lean-bulk": "lean bulk block",
+  bulk: "bulk block",
+  cut: "cut phase",
+  maintenance: "maintenance phase",
+  "lose-weight": "weight loss phase",
+};
+
 function Dashboard() {
   const consumed = useAppSelector((s) => s.nutrition.consumed);
   const profile = useAppSelector((s) => s.profile);
+  const authUser = useAppSelector((s) => s.auth.user);
   const latestWeight = useAppSelector((s) => s.weight.entries[s.weight.entries.length - 1]);
   const adj = useCalorieAdjustment();
   const targets = { ...computeTargets(latestWeight ? { ...profile, weightKg: latestWeight.kg } : profile), calories: adj.adjustedTarget };
 
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const firstName = authUser?.name?.split(" ")[0] ?? "there";
+  const goalLabel = GOAL_WEEK_LABELS[profile.goal] ?? profile.goal;
+
   return (
-    <AppShell title="Good morning, Alex" subtitle="Friday · Week 6 of your lean bulk block">
+    <AppShell title={`${greeting}, ${firstName}`} subtitle={`${new Date().toLocaleDateString("en-US", { weekday: "long" })} · ${goalLabel}`}>
       <div className="space-y-8">
         <section className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
           <AiCoachSuggestions />

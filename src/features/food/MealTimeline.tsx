@@ -16,10 +16,20 @@ export function MealTimeline({ onAdd }: { onAdd: (slot: Meal["slot"]) => void })
   const dispatch = useAppDispatch();
   const meals = useAppSelector((s) => s.nutrition.meals);
 
+  const filledMeals = meals.filter((m) => m.items.length > 0);
+
+  if (filledMeals.length === 0) {
+    return (
+      <div className="rounded-3xl border border-dashed border-border px-6 py-10 text-center text-sm text-muted-foreground">
+        No meals logged yet. Tap + on a meal type or use Add Meal below.
+      </div>
+    );
+  }
+
   return (
     <div className="relative space-y-4 pl-6">
       <span className="absolute left-2 top-3 bottom-3 w-px bg-border" aria-hidden />
-      {meals.map((meal, i) => {
+      {filledMeals.map((meal, i) => {
         const kcal = meal.items.reduce((a, b) => a + b.calories, 0);
         const protein = meal.items.reduce((a, b) => a + b.protein, 0);
         return (
@@ -80,11 +90,6 @@ export function MealTimeline({ onAdd }: { onAdd: (slot: Meal["slot"]) => void })
                     </div>
                   </li>
                 ))}
-                {meal.items.length === 0 ? (
-                  <li className="rounded-2xl border border-dashed border-border px-4 py-5 text-center text-xs text-muted-foreground">
-                    Nothing logged yet
-                  </li>
-                ) : null}
               </ul>
             </div>
           </motion.section>

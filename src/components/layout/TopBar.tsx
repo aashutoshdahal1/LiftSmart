@@ -7,11 +7,11 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { ProfileSheet } from "@/features/profile/ProfileSheet";
-import { user } from "@/lib/mock-data";
 import { useAppSelector } from "@/store";
 
 export function TopBar({ title: _title, subtitle: _subtitle }: { title: string; subtitle?: string | undefined }) {
   const streak = useAppSelector((s) => s.gamification.streak);
+  const authUser = useAppSelector((s) => s.auth.user);
   const [profileOpen, setProfileOpen] = useState(false);
 
   return (
@@ -61,7 +61,7 @@ export function TopBar({ title: _title, subtitle: _subtitle }: { title: string; 
             <button onClick={() => setProfileOpen(true)} aria-label="Profile">
               <Avatar className="size-9 border border-border hover:border-primary/50 transition-colors">
                 <AvatarFallback className="bg-elevated text-xs font-semibold">
-                  {user.avatarInitials}
+                  {authUser?.name ? authUser.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "?"}
                 </AvatarFallback>
               </Avatar>
             </button>

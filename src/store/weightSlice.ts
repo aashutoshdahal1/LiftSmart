@@ -9,24 +9,8 @@ interface WeightState {
   entries: WeightEntry[];
 }
 
-const today = new Date();
-function daysAgo(n: number) {
-  const d = new Date(today);
-  d.setDate(d.getDate() - n);
-  return d.toISOString().slice(0, 10);
-}
-
 const initialState: WeightState = {
-  entries: [
-    { date: daysAgo(8), kg: 79.2 },
-    { date: daysAgo(7), kg: 79.0 },
-    { date: daysAgo(6), kg: 78.9 },
-    { date: daysAgo(5), kg: 78.7 },
-    { date: daysAgo(4), kg: 78.6 },
-    { date: daysAgo(3), kg: 78.5 },
-    { date: daysAgo(2), kg: 78.5 },
-    { date: daysAgo(1), kg: 78.4 },
-  ],
+  entries: [],
 };
 
 const weightSlice = createSlice({
@@ -42,8 +26,11 @@ const weightSlice = createSlice({
         state.entries.sort((a, b) => a.date.localeCompare(b.date));
       }
     },
+    setWeightEntries(state, action: PayloadAction<WeightEntry[]>) {
+      state.entries = [...action.payload].sort((a, b) => a.date.localeCompare(b.date));
+    },
   },
 });
 
-export const { logWeight } = weightSlice.actions;
+export const { logWeight, setWeightEntries } = weightSlice.actions;
 export default weightSlice.reducer;

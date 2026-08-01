@@ -1,26 +1,40 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { consumed, meals, waterGlasses, type FoodItem, type Meal } from "@/lib/mock-data";
+import { type FoodItem, type Meal } from "@/lib/mock-data";
 
 export interface CalorieAdjustment {
-  delta: number;         // + means increase, - means decrease
-  reason: string;        // human-readable explanation
-  date: string;          // YYYY-MM-DD this adjustment was computed
+  delta: number;
+  reason: string;
+  date: string;
+}
+
+interface ConsumedTotals {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
 }
 
 interface NutritionState {
   meals: Meal[];
-  consumed: typeof consumed;
+  consumed: ConsumedTotals;
   water: number;
   waterTarget: number;
   calorieAdjustment: CalorieAdjustment | null;
-  yesterdayMealsUsed: boolean;  // true if today's meals were carried from yesterday
+  yesterdayMealsUsed: boolean;
 }
 
+const EMPTY_MEALS: Meal[] = [
+  { id: "m-breakfast", slot: "Breakfast", time: "8:00 AM",  items: [] },
+  { id: "m-lunch",     slot: "Lunch",     time: "12:30 PM", items: [] },
+  { id: "m-snack",     slot: "Snack",     time: "3:30 PM",  items: [] },
+  { id: "m-dinner",    slot: "Dinner",    time: "7:00 PM",  items: [] },
+];
+
 const initialState: NutritionState = {
-  meals,
-  consumed,
-  water: waterGlasses.current,
-  waterTarget: waterGlasses.target,
+  meals: EMPTY_MEALS,
+  consumed: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+  water: 0,
+  waterTarget: 9,
   calorieAdjustment: null,
   yesterdayMealsUsed: false,
 };

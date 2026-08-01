@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
+const BASE = import.meta.env.VITE_API_URL ?? "";
 
 function getToken(): string | null {
   return typeof window !== "undefined" ? localStorage.getItem("ls_token") : null;
@@ -57,6 +57,7 @@ export const weightApi = {
 // ── Nutrition ─────────────────────────────────────────────────────────────────
 export const nutritionApi = {
   get: (date?: string) => get<{ log: NutritionLogRes }>(`/api/nutrition${date ? `?date=${date}` : ""}`),
+  history: (days = 7) => get<{ history: NutritionDayRes[] }>(`/api/nutrition/history?days=${days}`),
   addFood: (slot: string, item: FoodItemPayload, date?: string) =>
     post<{ log: NutritionLogRes }>("/api/nutrition/food", { slot, item, date }),
   removeFood: (slot: string, itemId: string, date?: string) =>
@@ -79,6 +80,8 @@ export const routinesApi = {
     post<{ routine: RoutineRes }>("/api/routines", { title, exercises }),
   update: (id: string, data: Partial<{ title: string; exercises: RoutineExercisePayload[] }>) =>
     put<{ routine: RoutineRes }>(`/api/routines/${id}`, data),
+  reorder: (ids: string[]) =>
+    put<{ ok: boolean }>("/api/routines/reorder", { ids }),
   delete: (id: string) => del<{ message: string }>(`/api/routines/${id}`),
 };
 
@@ -156,6 +159,12 @@ export interface NutritionLogRes {
   water: number;
   waterTarget: number;
   consumed: { calories: number; protein: number; carbs: number; fat: number };
+}
+
+export interface NutritionDayRes {
+  date: string;
+  calories: number;
+  protein: number;
 }
 
 export interface WorkoutPayload {

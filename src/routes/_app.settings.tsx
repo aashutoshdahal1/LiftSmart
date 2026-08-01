@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { user } from "@/lib/mock-data";
+import { useAppSelector } from "@/store";
 
 export const Route = createFileRoute("/_app/settings")({
   head: () => ({
@@ -53,6 +53,8 @@ function Row({
 }
 
 function SettingsPage() {
+  const authUser = useAppSelector((s) => s.auth.user);
+  const initials = authUser?.name ? authUser.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "?";
   return (
     <AppShell title="Settings" subtitle="Profile, preferences and subscription">
       <div className="max-w-2xl space-y-6">
@@ -60,22 +62,22 @@ function SettingsPage() {
           <div className="flex items-center gap-4">
             <Avatar className="size-16 border border-border">
               <AvatarFallback className="bg-elevated font-display text-lg font-semibold">
-                {user.avatarInitials}
+                {initials}
               </AvatarFallback>
             </Avatar>
             <div>
-              <p className="font-display text-lg font-semibold">{user.name}</p>
-              <p className="text-sm text-muted-foreground">{user.email}</p>
+              <p className="font-display text-lg font-semibold">{authUser?.name ?? "—"}</p>
+              <p className="text-sm text-muted-foreground">{authUser?.email ?? "—"}</p>
             </div>
           </div>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             <div>
               <Label htmlFor="name">Full name</Label>
-              <Input id="name" defaultValue={user.name} className="mt-2 h-11 rounded-2xl bg-elevated" />
+              <Input id="name" defaultValue={authUser?.name ?? ""} className="mt-2 h-11 rounded-2xl bg-elevated" />
             </div>
             <div>
               <Label htmlFor="email">Email</Label>
-              <Input id="email" defaultValue={user.email} className="mt-2 h-11 rounded-2xl bg-elevated" />
+              <Input id="email" defaultValue={authUser?.email ?? ""} className="mt-2 h-11 rounded-2xl bg-elevated" />
             </div>
           </div>
           <Button className="mt-5 rounded-2xl" onClick={() => toast.success("Profile saved")}>

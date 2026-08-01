@@ -8,6 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { profileApi } from "@/lib/api";
+import { useAppDispatch } from "@/store";
+import { setBodyStats, setGoal, setActivityLevel } from "@/store/profileSlice";
 
 export const Route = createFileRoute("/onboarding")({
   head: () => ({
@@ -82,15 +85,62 @@ const steps = [
   ]),
 ];
 
+const GOAL_MAP: Record<string, string> = {
+  "Lean bulk": "lean-bulk",
+  "Cut": "cut",
+  "Bulk": "bulk",
+  "Maintenance": "maintenance",
+};
+const ACTIVITY_MAP: Record<string, string> = {
+  "Sedentary": "sedentary",
+  "Lightly active": "light",
+  "Moderately active": "moderate",
+  "Very active": "high",
+  "Athlete": "athlete",
+};
+const EXPERIENCE_MAP: Record<string, string> = {
+  "Beginner": "beginner",
+  "Intermediate": "intermediate",
+  "Advanced": "advanced",
+};
+const GYM_MAP: Record<string, string> = {
+  "Full gym": "full-gym",
+  "Home gym": "home-gym",
+  "Bodyweight only": "bodyweight",
+};
+const GENDER_MAP: Record<string, string> = {
+  "Male": "male",
+  "Female": "female",
+  "Other": "other",
+};
+
 function Onboarding() {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>({ age: 28, height: 181, weight: 78.4 });
   const current = steps[step]!;
   const pct = Math.round(((step + 1) / steps.length) * 100);
 
-  const next = () => {
+  const next = async () => {
     if (step === steps.length - 1) {
+      const a = answers as Record<string, string | number>;
+      const payload = {
+        age: Number(a["age"]) || 25,
+        heightCm: Number(a["height"]) || 175,
+        weightKg: Number(a["weight"]) || 75,
+        gender: (GENDER_MAP[a["gender"] as string] ?? "male") as "male" | "female" | "other",
+        goal: (GOAL_MAP[a["goal"] as string] ?? "maintenance") as "lean-bulk" | "bulk" | "cut" | "maintenance" | "lose-weight",
+        activityLevel: (ACTIVITY_MAP[a["activity"] as string] ?? "moderate") as "sedentary" | "light" | "moderate" | "high" | "athlete",
+        experience: (EXPERIENCE_MAP[a["experience"] as string] ?? "beginner") as "beginner" | "intermediate" | "advanced",
+        targetDays: Number(a["days"]) || 4,
+        gymAccess: (GYM_MAP[a["gym"] as string] ?? "full-gym") as "full-gym" | "home-gym" | "bodyweight",
+        foodPreferences: a["food"] && a["food"] !== "No restrictions" ? [a["food"] as string] : [] as string[],
+      };
+      dispatch(setBodyStats({ age: payload.age, heightCm: payload.heightCm, weightKg: payload.weightKg, gender: payload.gender }));
+      dispatch(setGoal(payload.goal));
+      dispatch(setActivityLevel(payload.activityLevel));
+      profileApi.update(payload).catch(() => {});
       toast.success("Your plan is ready");
       navigate({ to: "/dashboard" });
       return;
@@ -192,7 +242,7 @@ function Onboarding() {
           </motion.section>
         </AnimatePresence>
 
-        <Button size="lg" className="mt-10 h-12 w-full rounded-2xl" onClick={next}>
+        <Button size="lg" className="mt-10 h-12 w-full rounded-2xl" onClick={() => { void next(); }}>
           {step === steps.length - 1 ? "Build my plan" : "Continue"}
           <ArrowRight className="size-4" />
         </Button>

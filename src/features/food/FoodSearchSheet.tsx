@@ -229,7 +229,7 @@ export function FoodSearchSheet({ open, slot: initialSlot, onClose }: Props) {
           <motion.div
             initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 32 }}
-            className="fixed bottom-0 left-0 right-0 z-[61] flex max-h-[90dvh] flex-col rounded-t-3xl bg-card"
+            className="fixed bottom-0 left-0 right-0 z-[61] flex h-[90dvh] flex-col rounded-t-3xl bg-card"
           >
             <div className="mx-auto mt-3 h-1 w-10 shrink-0 rounded-full bg-muted" />
 
