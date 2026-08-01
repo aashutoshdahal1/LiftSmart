@@ -5,8 +5,18 @@ const { connectDB } = require("./lib/db");
 
 const app = express();
 
+const ALLOWED_ORIGINS = [
+  process.env.CLIENT_ORIGIN,
+  "http://localhost:3000",
+  "http://localhost:5173",
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.CLIENT_ORIGIN || "*",
+  origin: (origin, cb) => {
+    // allow server-to-server / curl (no origin) and listed origins
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
+    cb(new Error(`CORS: ${origin} not allowed`));
+  },
   credentials: true,
 }));
 app.use(express.json());
