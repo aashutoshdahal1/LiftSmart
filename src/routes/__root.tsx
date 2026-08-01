@@ -91,6 +91,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "LiftSmart is an AI fitness and nutrition coach that rewrites your training and macros every day based on how you actually perform.",
       },
       { name: "theme-color", content: "#101216" },
+      { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { property: "og:title", content: "LiftSmart — AI Fitness Coach" },
@@ -128,6 +129,7 @@ function RootShell({ children }: { children: ReactNode }) {
         {/* Hardcoded before HeadContent so iOS reads viewport-fit=cover on every load */}
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <HeadContent />
