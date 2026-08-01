@@ -16,7 +16,7 @@ export function TopBar({ title: _title, subtitle: _subtitle }: { title: string; 
 
   return (
     <>
-      <header className="sticky top-0 z-30 -mx-4 mb-6 border-b border-border/60 bg-background/80 px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6">
+      <header className="sticky top-0 z-30 -mx-4 mb-6 border-b border-border/60 bg-background/80 px-4 backdrop-blur-xl sm:-mx-6 sm:px-6 topbar-safe">
         <div className="flex items-center justify-between gap-4">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <Sheet>
