@@ -1,15 +1,15 @@
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
 
 function getToken(): string | null {
-  return typeof localStorage !== "undefined" ? localStorage.getItem("ls_token") : null;
+  return typeof window !== "undefined" ? localStorage.getItem("ls_token") : null;
 }
 
 export function setToken(token: string) {
-  localStorage.setItem("ls_token", token);
+  if (typeof window !== "undefined") localStorage.setItem("ls_token", token);
 }
 
 export function clearToken() {
-  localStorage.removeItem("ls_token");
+  if (typeof window !== "undefined") localStorage.removeItem("ls_token");
 }
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
