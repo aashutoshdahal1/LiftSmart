@@ -4,10 +4,13 @@ const Workout = require("../models/Workout");
 const User = require("../models/User");
 
 // GET /api/workouts  — history, most recent first
+// ?limit=N (default 20, max 600)  ?summary=1 (omit exercises for chart use)
 router.get("/", protect, async (req, res) => {
   try {
-    const limit = parseInt(req.query.limit) || 20;
-    const workouts = await Workout.find({ user: req.user._id }).sort({ date: -1 }).limit(limit);
+    const limit = Math.min(parseInt(req.query.limit) || 20, 600);
+    const summary = req.query.summary === "1";
+    const projection = summary ? { exercises: 0 } : {};
+    const workouts = await Workout.find({ user: req.user._id }, projection).sort({ date: -1 }).limit(limit);
     res.json({ workouts });
   } catch (err) {
     res.status(500).json({ message: err.message });

@@ -5,14 +5,21 @@ const { connectDB } = require("./lib/db");
 
 const app = express();
 
+const ALLOWED_ORIGINS = [
+  "https://liftsmart.vercel.app",
+  "https://liftsmart.aashutoshcloud.live",
+  "http://localhost:5173",
+  "http://localhost:3000",
+];
+
 app.use(cors({
-  origin: (origin, cb) => {
-    if (!origin) return cb(null, true); // server-to-server / curl
-    const allowed =
-      origin === process.env.CLIENT_ORIGIN ||
-      /^http:\/\/localhost:\d+$/.test(origin); // any localhost port in dev
-    if (allowed) return cb(null, true);
-    cb(new Error(`CORS: ${origin} not allowed`));
+  origin: (origin, callback) => {
+    // Allow requests with no origin (curl, Postman, mobile apps)
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS: origin ${origin} not allowed`));
+    }
   },
   credentials: true,
 }));

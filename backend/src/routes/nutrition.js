@@ -12,34 +12,20 @@ router.get("/", protect, async (req, res) => {
     const date = req.query.date || todayStr();
     let log = await NutritionLog.findOne({ user: req.user._id, date });
 
-    // If no log today, carry forward yesterday's meals
+    // No log for this date — create a fresh empty one
     if (!log) {
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yd = yesterday.toISOString().slice(0, 10);
-      const prev = await NutritionLog.findOne({ user: req.user._id, date: yd });
-      if (prev) {
-        log = await NutritionLog.create({
-          user: req.user._id,
-          date,
-          meals: prev.meals,
-          water: 0,
-          waterTarget: prev.waterTarget,
-        });
-      } else {
-        log = await NutritionLog.create({
-          user: req.user._id,
-          date,
-          meals: [
-            { slot: "Breakfast", time: "8:00 AM", items: [] },
-            { slot: "Lunch", time: "12:30 PM", items: [] },
-            { slot: "Snack", time: "3:30 PM", items: [] },
-            { slot: "Dinner", time: "7:00 PM", items: [] },
-          ],
-          water: 0,
-          waterTarget: 9,
-        });
-      }
+      log = await NutritionLog.create({
+        user: req.user._id,
+        date,
+        meals: [
+          { slot: "Breakfast", time: "8:00 AM",  items: [] },
+          { slot: "Lunch",     time: "12:30 PM", items: [] },
+          { slot: "Snack",     time: "3:30 PM",  items: [] },
+          { slot: "Dinner",    time: "7:00 PM",  items: [] },
+        ],
+        water: 0,
+        waterTarget: 9,
+      });
     }
 
     res.json({ log });
@@ -83,6 +69,29 @@ router.delete("/food", protect, async (req, res) => {
     meal.items = meal.items.filter((i) => i.id !== itemId);
     await log.save();
     res.json({ log });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// GET /api/nutrition/history?days=7  — last N days of calorie + protein totals
+router.get("/history", protect, async (req, res) => {
+  try {
+    const days = Math.min(parseInt(req.query.days) || 7, 30);
+    const results = [];
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const date = d.toISOString().slice(0, 10);
+      const log = await NutritionLog.findOne({ user: req.user._id, date });
+      const items = log ? log.meals.flatMap((m) => m.items) : [];
+      results.push({
+        date,
+        calories: Math.round(items.reduce((s, it) => s + it.calories * (it.quantity ?? 1), 0)),
+        protein:  Math.round(items.reduce((s, it) => s + it.protein  * (it.quantity ?? 1), 0)),
+      });
+    }
+    res.json({ history: results });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
