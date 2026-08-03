@@ -1,5 +1,4 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { user } from "@/lib/mock-data";
 
 export type FitnessGoal = "lean-bulk" | "bulk" | "cut" | "maintenance" | "lose-weight";
 
@@ -72,13 +71,13 @@ export function computeTargets(p: ProfileState): MacroTargets {
 }
 
 const initialState: ProfileState = {
-  name: user.name,
-  age: user.age,
-  heightCm: user.heightCm,
-  weightKg: user.weightKg,
-  gender: user.gender as ProfileState["gender"],
-  goal: user.goal as FitnessGoal,
-  activityLevel: user.activityLevel as ProfileState["activityLevel"],
+  name: "",
+  age: 25,
+  heightCm: 170,
+  weightKg: 70,
+  gender: "male",
+  goal: "maintenance",
+  activityLevel: "moderate",
 };
 
 const profileSlice = createSlice({

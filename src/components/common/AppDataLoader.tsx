@@ -47,6 +47,7 @@ export function AppDataLoader() {
     // Load all user data in parallel on mount
     Promise.allSettled([
       profileApi.get().then(({ profile }) => {
+        console.log("[AppDataLoader] profile loaded:", profile.name);
         dispatch(setBodyStats({ age: profile.age, heightCm: profile.heightCm, weightKg: profile.weightKg, gender: profile.gender }));
         dispatch(setGoal(profile.goal));
         dispatch(setActivityLevel(profile.activityLevel));
@@ -99,7 +100,11 @@ export function AppDataLoader() {
       nutritionApi.history(7).then(({ history }) => {
         dispatch(setNutritionHistory(history));
       }),
-    ]);
+    ]).then((results) => {
+      results.forEach((r, i) => {
+        if (r.status === "rejected") console.error(`[AppDataLoader] call ${i} failed:`, r.reason);
+      });
+    });
   }, [token, dispatch]);
 
   return null;
