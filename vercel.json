@@ -4,6 +4,6 @@
   "framework": null,
   "outputDirectory": "dist/client",
   "rewrites": [
-    { "source": "/((?!assets|favicon).*)", "destination": "/index.html" }
+    { "source": "/(.*)", "destination": "/api/server" }
   ]
 }
